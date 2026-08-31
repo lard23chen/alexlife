@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>保單資產管理系統 (MongoDB)</title>
+    <!-- Password Protection -->
+    <style>
+        #pw-overlay {
+            position: fixed; inset: 0; z-index: 9999;
+            background: #0a0a0a;
+            display: flex; align-items: center; justify-content: center;
+        }
+        #pw-box {
+            text-align: center;
+            font-family: 'Outfit', sans-serif;
+            padding: 48px 40px;
+            background: #1e1e1e;
+            border-radius: 16px;
+            border: 1px solid #333;
+            min-width: 320px;
+        }
+        #pw-box .icon { font-size: 4rem; margin-bottom: 16px; }
+        #pw-box h2 { color: #9c27b0; margin: 0 0 8px; font-size: 1.6rem; }
+        #pw-box p  { color: #94a3b8; margin: 0 0 24px; font-size: 0.9rem; }
+        #pw-input {
+            width: 100%; box-sizing: border-box;
+            padding: 12px 16px; font-size: 1.1rem;
+            background: #121212; color: #e0e0e0;
+            border: 2px solid #444; border-radius: 8px;
+            outline: none; letter-spacing: 0.15em;
+            margin-bottom: 14px;
+            transition: border-color 0.2s;
+        }
+        #pw-input:focus { border-color: #9c27b0; }
+        #pw-input.shake {
+            animation: shake 0.35s ease;
+            border-color: #ef4444;
+        }
+        @keyframes shake {
+            0%,100%{transform:translateX(0)}
+            20%{transform:translateX(-8px)}
+            40%{transform:translateX(8px)}
+            60%{transform:translateX(-6px)}
+            80%{transform:translateX(6px)}
+        }
+        #pw-btn {
+            width: 100%; padding: 12px;
+            background: #9c27b0; color: #fff;
+            border: none; border-radius: 8px;
+            font-size: 1rem; font-weight: 700;
+            cursor: pointer; transition: background 0.2s;
+        }
+        #pw-btn:hover { background: #7b1fa2; }
+        #pw-err { color: #ef4444; font-size: 0.85rem; margin-top: 10px; min-height: 1.2em; }
+    </style>
+    <script>
+        (function () {
+            var KEY = 'alex_life_auth';
+            function unlock() {
+                var el = document.getElementById('pw-overlay');
+                if (el) el.remove();
+            }
+            function verify(pw) {
+                return pw === atob('MDkxODIxNjAwMQ==');
+            }
+            function trySubmit() {
+                var pw = document.getElementById('pw-input').value;
+                if (verify(pw)) {
+                    sessionStorage.setItem(KEY, '1');
+                    unlock();
+                } else {
+                    var inp = document.getElementById('pw-input');
+                    inp.classList.remove('shake');
+                    void inp.offsetWidth;
+                    inp.classList.add('shake');
+                    document.getElementById('pw-err').textContent = '密碼錯誤，請再試一次';
+                    inp.value = '';
+                    inp.focus();
+                }
+            }
+            document.addEventListener('DOMContentLoaded', function () {
+                if (sessionStorage.getItem(KEY) === '1') { unlock(); return; }
+                document.getElementById('pw-input').addEventListener('keydown', function (e) {
+                    if (e.key === 'Enter') trySubmit();
+                });
+                document.getElementById('pw-btn').addEventListener('click', trySubmit);
+                document.getElementById('pw-input').focus();
+            });
+        })();
+    </script>
+<style>
+:root{--bg:#0f172a;--surface:#1e293b;--surface2:#263348;--border:#334155;--text:#e2e8f0;--muted:#94a3b8;--accent:#38bdf8;--buy:#f87171;--sell:#22c55e;--div:#c084fc;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px}
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+header h1{font-size:1.2rem;font-weight:700;color:var(--accent)}
+header span{color:var(--muted);font-size:0.82rem}
+main{padding:18px 24px 80px;max-width:1700px;margin:0 auto}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-bottom:18px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 16px}
+.stat-label{font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--muted);margin-bottom:4px}
+.stat-value{font-size:1.15rem;font-weight:700;color:var(--text)}
+.pos{color:var(--buy)}.neg{color:var(--sell)}
+.section-title{font-size:0.85rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin:18px 0 8px;display:flex;align-items:center;gap:8px}
+.table-wrap{overflow-x:auto;background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:4px}
+table{width:100%;border-collapse:collapse}
+th{background:var(--surface2);padding:9px 11px;text-align:left;font-size:0.73rem;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:var(--muted);border-bottom:1px solid var(--border);white-space:nowrap;cursor:pointer;user-select:none}
+th:hover{color:var(--text)}
+td{padding:10px 11px;font-size:0.82rem;border-bottom:1px solid var(--border);white-space:nowrap}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,0.03)}
+.muted{color:var(--muted)}
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;align-items:center}
+.filters select,.filters input{background:var(--surface);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:6px;font-size:0.8rem}
+.filters select:focus,.filters input:focus{outline:none;border-color:var(--accent)}
+.btn{padding:6px 14px;border-radius:6px;border:none;cursor:pointer;font-size:0.8rem;font-weight:600}
+.btn-primary{background:var(--accent);color:#0f172a}
+.btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
+.btn-danger{background:#ef4444;color:#fff}
+#edit-toolbar{position:fixed;bottom:22px;right:22px;z-index:1000;display:flex;gap:8px;align-items:center}
+#edit-toggle{padding:10px 18px;border-radius:25px;border:none;cursor:pointer;font-size:0.83rem;font-weight:700;background:#64748b;color:#fff;box-shadow:0 4px 14px rgba(0,0,0,0.5);transition:background 0.2s}
+#edit-toolbar.on #edit-toggle{background:var(--accent);color:#0f172a}
+#add-btn{display:none;padding:10px 16px;border-radius:25px;border:none;cursor:pointer;font-size:0.83rem;font-weight:700;background:var(--sell);color:#fff;box-shadow:0 4px 14px rgba(0,0,0,0.5)}
+#edit-toolbar.on #add-btn{display:inline-block}
+.act-btn{background:none;border:none;cursor:pointer;padding:3px 6px;border-radius:4px;font-size:0.72rem;display:none}
+body.edit-on .act-btn{display:inline-block}
+.act-edit{color:var(--accent)}.act-edit:hover{background:rgba(56,189,248,0.15)}
+.act-del{color:var(--sell)}.act-del:hover{background:rgba(248,113,113,0.15)}
+#crud-modal{position:fixed;inset:0;z-index:9000;display:none;align-items:center;justify-content:center}
+#crud-modal.open{display:flex}
+#crud-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.65)}
+#crud-dialog{position:relative;z-index:1;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;width:600px;max-width:96vw;max-height:92vh;overflow-y:auto}
+#crud-dialog h3{font-size:1rem;font-weight:700;margin-bottom:16px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-group{display:flex;flex-direction:column;gap:4px}
+.form-group.full{grid-column:1/-1}
+.form-group label{font-size:0.73rem;color:var(--muted);font-weight:600}
+.form-group input,.form-group select,.form-group textarea{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:7px 10px;border-radius:6px;font-size:0.82rem}
+.form-group input:focus,.form-group textarea:focus{outline:none;border-color:var(--accent)}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+</style>
+</head>
+<body>
+    <!-- Password overlay -->
+    <div id="pw-overlay">
+        <div id="pw-box">
+            <div class="icon">🏠</div>
+            <h2>ALEX 生活管理</h2>
+            <p>請輸入密碼以繼續</p>
+            <input id="pw-input" type="password" placeholder="密碼" autocomplete="off">
+            <button id="pw-btn">進入</button>
+            <div id="pw-err"></div>
+        </div>
+    </div>
+<header>
+  <h1>📜 保單資產管理系統</h1>
+  <span id="hdr-sub">AlexLFE (MongoDB)</span>
+  <span id="sync-info" style="margin-left:auto;display:flex;align-items:center;gap:6px;font-size:0.78rem;color:#64748b">
+    <span id="sync-dot" style="width:6px;height:6px;border-radius:50%;background:#f59e0b;display:inline-block;animation:pulse 1s infinite;flex-shrink:0"></span>
+    <span id="sync-text">載入中…</span>
+  </span>
+</header>
+<main>
+  <div class="stats" id="stats-grid"></div>
+
+  <div class="filters">
+    <input type="text" id="f-search" placeholder="搜尋保單名稱…" style="width:200px">
+    <select id="f-matured" onchange="render()">
+      <option value="">是否滿期：全部</option>
+      <option value="是">是</option>
+      <option value="否">否</option>
+    </select>
+    <button class="btn btn-secondary" onclick="resetFilters()">重置</button>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>保單名稱</th>
+          <th>成交日</th>
+          <th>保單號碼</th>
+          <th>年期</th>
+          <th class="num">年繳保費</th>
+          <th class="num">累計繳費</th>
+          <th>滿期年</th>
+          <th>是否滿期</th>
+          <th class="num">滿期金</th>
+          <th class="num">2025領回</th>
+          <th>保險公司</th>
+          <th>保險人</th>
+          <th>經手人</th>
+          <th>備註</th>
+          <th class="act-col" style="width:100px;display:none">操作</th>
+        </tr>
+      </thead>
+      <tbody id="insurance-body"></tbody>
+    </table>
+  </div>
+
+  <div class="section-title" style="margin-top:28px">📊 保單分析報告</div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px;margin-bottom:18px">
+    <div class="stat-card">
+      <div class="stat-label">總保單數</div>
+      <div class="stat-value">14 筆</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">總累計繳費（台幣）</div>
+      <div class="stat-value">約 664 萬元</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">另有美元保單</div>
+      <div class="stat-value">USD 15,146</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">2028 年到期金額</div>
+      <div class="stat-value" style="color:var(--accent)">~211 萬元</div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:14px;margin-bottom:18px">
+
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px">
+      <div style="font-size:0.8rem;font-weight:700;color:var(--accent);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.05em">依保險公司分類</div>
+      <table style="width:100%;border-collapse:collapse;font-size:0.82rem">
+        <thead>
+          <tr style="border-bottom:1px solid var(--border)">
+            <th style="text-align:left;padding:5px 8px;color:var(--muted);font-size:0.72rem">公司</th>
+            <th style="text-align:center;padding:5px 8px;color:var(--muted);font-size:0.72rem">筆數</th>
+            <th style="text-align:right;padding:5px 8px;color:var(--muted);font-size:0.72rem">累計繳費估算</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 8px">國泰</td><td style="text-align:center;padding:6px 8px">4 筆</td><td style="text-align:right;padding:6px 8px">~213 萬（含美元）</td></tr>
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 8px">中國人壽／中壽</td><td style="text-align:center;padding:6px 8px">5 筆</td><td style="text-align:right;padding:6px 8px">~87 萬（含美元）</td></tr>
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 8px">富邦</td><td style="text-align:center;padding:6px 8px">2 筆</td><td style="text-align:right;padding:6px 8px">~122 萬</td></tr>
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 8px">南山</td><td style="text-align:center;padding:6px 8px">1 筆</td><td style="text-align:right;padding:6px 8px">~77 萬</td></tr>
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 8px">台灣人壽</td><td style="text-align:center;padding:6px 8px">1 筆</td><td style="text-align:right;padding:6px 8px">~50 萬</td></tr>
+          <tr><td style="padding:6px 8px">富利年年終身（待確認）</td><td style="text-align:center;padding:6px 8px">1 筆</td><td style="text-align:right;padding:6px 8px">~115 萬</td></tr>
+        </tbody>
+      </table>
+      <div style="margin-top:10px;font-size:0.75rem;color:var(--muted);border-top:1px solid var(--border);padding-top:8px">⚠️ 集中度偏高：國泰佔比最大，建議留意分散風險</div>
+    </div>
+
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px">
+      <div style="font-size:0.8rem;font-weight:700;color:var(--accent);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.05em">滿期狀態</div>
+
+      <div style="font-size:0.75rem;font-weight:700;color:var(--buy);margin-bottom:6px">已滿期（5 筆）— 需確認是否已妥善處理</div>
+      <div style="font-size:0.8rem;line-height:1.8;color:var(--text)">
+        添美利美元（2015）・南山人壽（2020）・富邦_1（2021）・富邦_2（2021）・雙好還本終身（2022）
+      </div>
+
+      <div style="font-size:0.75rem;font-weight:700;color:var(--accent);margin:12px 0 6px">即將滿期（2 筆，2028 年）</div>
+      <div style="font-size:0.8rem;line-height:1.8;color:var(--text)">
+        添鑫終身壽險 2028/02 → <span style="color:var(--accent)">764,280 元</span><br>
+        富利年年終身 2028/02 → <span style="color:var(--accent)">1,350,780 元</span><br>
+        <span style="color:var(--muted);font-size:0.75rem">同月合計約 211 萬，建議提前規劃再投資</span>
+      </div>
+
+      <div style="font-size:0.75rem;font-weight:700;color:var(--sell);margin:12px 0 6px">長期保障型（1 筆）</div>
+      <div style="font-size:0.8rem;color:var(--text)">
+        新呵護久久殘廢照護（2035）— 失能最高 50 年，屬保障非儲蓄
+      </div>
+
+      <div style="font-size:0.75rem;font-weight:700;color:var(--muted);margin:12px 0 6px">已繳清、持續滋息（6 筆）</div>
+      <div style="font-size:0.8rem;color:var(--muted)">
+        台灣人壽吉順利・中壽系列（年年旺、鑫增利×2、三得利、金美好利）— 每年有增值回饋分享金持續累積
+      </div>
+    </div>
+
+  </div>
+
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:18px">
+    <div style="font-size:0.8rem;font-weight:700;color:var(--buy);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.05em">⚠️ 三個需要注意的點</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px">
+      <div style="background:var(--surface2);border-radius:8px;padding:12px">
+        <div style="font-size:0.78rem;font-weight:700;color:var(--buy);margin-bottom:6px">1. 富邦_1 本金無法領回</div>
+        <div style="font-size:0.8rem;color:var(--muted);line-height:1.6">期滿本金不可領回，但每年仍繳 2,487 意外險。確認是否仍需此保障，否則可評估停繳。</div>
+      </div>
+      <div style="background:var(--surface2);border-radius:8px;padding:12px">
+        <div style="font-size:0.78rem;font-weight:700;color:var(--accent);margin-bottom:6px">2. 美元保單匯率風險</div>
+        <div style="font-size:0.8rem;color:var(--muted);line-height:1.6">添美利美元（已滿期）+ 中壽金美好利（2025 解約金約 USD 8,297 ≈ 台幣 27 萬）。帳面價值隨匯率浮動，可評估是否續持。</div>
+      </div>
+      <div style="background:var(--surface2);border-radius:8px;padding:12px">
+        <div style="font-size:0.78rem;font-weight:700;color:var(--sell);margin-bottom:6px">3. 整體配置偏儲蓄、輕保障</div>
+        <div style="font-size:0.8rem;color:var(--muted);line-height:1.6">14 筆中保障型只有新呵護久久一筆。2028 年一波到期後，建議評估是否補強保障或轉其他配置。</div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<div id="edit-toolbar">
+  <button id="edit-toggle" onclick="toggleEditMode()">✏️ 編輯</button>
+  <button id="add-btn" onclick="showAddModal()">＋ 新增</button>
+</div>
+
+<div id="crud-modal">
+  <div id="crud-backdrop" onclick="hideModal()"></div>
+  <div id="crud-dialog"></div>
+</div>
+
+<script>
+const host = window.location.hostname;
+const isLocalFile = window.location.protocol === 'file:';
+const API_BASE = isLocalFile ? 'http://localhost:3001/api/insurance'
+              : host === 'localhost' ? '/api/insurance'
+              : 'https://report-theta-nine.vercel.app/api/insurance';
+var data = [];
+var readOnly = false;
+
+function setSyncState(state, text) {
+  var dot = document.getElementById('sync-dot');
+  if (state === 'loading') { dot.style.background = '#f59e0b'; dot.style.animation = 'pulse 1s infinite'; }
+  else if (state === 'ok') { dot.style.background = '#22c55e'; dot.style.animation = 'none'; }
+  else { dot.style.background = '#ef4444'; dot.style.animation = 'none'; }
+  document.getElementById('sync-text').textContent = text;
+}
+
+async function fetchData() {
+  setSyncState('loading', '載入中…');
+  try {
+    var res = await fetch(API_BASE + '?t=' + Date.now());
+    var json = await res.json();
+    if (!json.ok) throw new Error('API error');
+    data = json.data;
+    readOnly = false;
+    setSyncState('ok', '同步完成・' + new Date().toLocaleTimeString('zh-TW', { hour12: false }));
+    render();
+  } catch (e) {
+    console.warn('API error, trying static fallback:', e);
+    try {
+        var fallbackRes = await fetch('insurance_data.json');
+        data = await fallbackRes.json();
+        readOnly = true;
+        setSyncState('error', '唯讀模式 (雲端)');
+        render();
+    } catch(fErr) {
+        readOnly = true;
+        setSyncState('error', '載入失敗');
+        console.error(fErr);
+    }
+  }
+}
+
+async function apiPost(endpoint, body) {
+  if (readOnly) throw new Error('唯讀模式：請在本地執行 insurance_server.js 後操作');
+  const res = await fetch(API_BASE + endpoint, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  return await res.json();
+}
+
+var COMPANY_ORDER = { '國泰': 0, '富邦': 1, '南山': 2 };
+
+function sortRows(rows) {
+  return rows.slice().sort(function(a, b) {
+    var ca = COMPANY_ORDER[a.company] !== undefined ? COMPANY_ORDER[a.company] : 3;
+    var cb = COMPANY_ORDER[b.company] !== undefined ? COMPANY_ORDER[b.company] : 3;
+    if (ca !== cb) return ca - cb;
+    var da = new Date((a.date || '').replace(/\//g, '-'));
+    var db = new Date((b.date || '').replace(/\//g, '-'));
+    return da - db;
+  });
+}
+
+function render() {
+  var filtered = sortRows(applyFilters(data));
+  renderStats(filtered);
+  renderTable(filtered);
+}
+
+function renderStats(rows) {
+  var totalAnnual = 0, totalAccumulated = 0;
+  rows.forEach(r => {
+    var ap = parseFloat((r.annualPremium || '0').replace(/,/g, ''));
+    var ac = parseFloat((r.accumulatedPremium || '0').replace(/,/g, ''));
+    if (!isNaN(ap)) totalAnnual += ap;
+    if (!isNaN(ac)) totalAccumulated += ac;
+  });
+
+  var cards = [
+    { label: '總保單數', val: rows.length },
+    { label: '總年繳保費估算', val: '$' + totalAnnual.toLocaleString('en-US') },
+    { label: '總累計繳費估算', val: '$' + totalAccumulated.toLocaleString('en-US') }
+  ];
+  document.getElementById('stats-grid').innerHTML = cards.map(c => `
+    <div class="stat-card">
+      <div class="stat-label">${c.label}</div>
+      <div class="stat-value">${c.val}</div>
+    </div>
+  `).join('');
+}
+
+function applyFilters(rows) {
+  var s = document.getElementById('f-search').value.toLowerCase();
+  var m = document.getElementById('f-matured').value;
+  return rows.filter(r => {
+    if (s && !(r.name && r.name.toLowerCase().includes(s))) return false;
+    if (m && r.isMatured !== m) return false;
+    return true;
+  });
+}
+
+function resetFilters() {
+  document.getElementById('f-search').value = '';
+  document.getElementById('f-matured').value = '';
+  render();
+}
+
+function renderTable(rows) {
+  var html = '';
+  rows.forEach((r, idx) => {
+    var displayName = r.name && r.name.length > 10 ? r.name.substring(0, 10) + '...' : (r.name || '-');
+    html += `
+      <tr>
+        <td class="muted" style="text-align:center;font-size:0.75rem">${idx + 1}</td>
+        <td title="${r.name || ''}">${displayName}</td>
+        <td class="muted">${r.date || '-'}</td>
+        <td><span style="color:var(--accent);font-weight:700">${r.policyNumber || '-'}</span></td>
+        <td>${r.years || '-'}</td>
+        <td style="text-align:right">${r.annualPremium || '-'}</td>
+        <td style="text-align:right">${r.accumulatedPremium || '-'}</td>
+        <td class="muted">${r.maturityYear || '-'}</td>
+        <td style="${r.isMatured === '是' ? 'color:#f87171;font-weight:700' : ''}">${r.isMatured || '-'}</td>
+        <td style="text-align:right">${r.maturityAmount || '-'}</td>
+        <td style="text-align:right">${r.returnNov2025 || '-'}</td>
+        <td>${r.company || '-'}</td>
+        <td>${r.insured || '-'}</td>
+        <td>${r.agent || '-'}</td>
+        <td class="muted" style="white-space:normal;max-width:250px;font-size:0.75rem">${r.memo || '-'}</td>
+        <td class="act-btn-cell" style="display:none">
+          <button class="act-btn act-edit" onclick="showEditModal('${r._id}')">編輯</button>
+          <button class="act-btn act-del" onclick="confirmDel('${r._id}')">刪除</button>
+        </td>
+      </tr>
+    `;
+  });
+  document.getElementById('insurance-body').innerHTML = html;
+  
+  // Refresh edit buttons visibility
+  if(editOn) {
+    document.querySelectorAll('.act-btn-cell').forEach(el => el.style.display = 'table-cell');
+    document.querySelectorAll('.act-btn').forEach(el => el.style.display = 'inline-block');
+  }
+}
+
+var editOn = false;
+window.toggleEditMode = function() {
+  if (editOn) {
+    editOn = false;
+    document.body.classList.remove('edit-on');
+    document.getElementById('edit-toolbar').classList.remove('on');
+    document.getElementById('edit-toggle').textContent = '✏️ 編輯';
+    document.querySelectorAll('.act-btn-cell').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.act-btn').forEach(el => el.style.display = 'none');
+    document.querySelector('.act-col').style.display = 'none';
+  } else {
+    showPasswordModal(() => {
+      editOn = true;
+      document.body.classList.add('edit-on');
+      document.getElementById('edit-toolbar').classList.add('on');
+      document.getElementById('edit-toggle').textContent = '✕ 退出編輯';
+      document.querySelectorAll('.act-btn-cell').forEach(el => el.style.display = 'table-cell');
+      document.querySelectorAll('.act-btn').forEach(el => el.style.display = 'inline-block');
+      document.querySelector('.act-col').style.display = 'table-cell';
+    });
+  }
+};
+
+function showModal(html) {
+  document.getElementById('crud-dialog').innerHTML = html;
+  document.getElementById('crud-modal').classList.add('open');
+}
+window.hideModal = function() {
+  document.getElementById('crud-modal').classList.remove('open');
+};
+
+function showPasswordModal(onSuccess) {
+  showModal(`
+    <h3>🔒 請輸入密碼</h3>
+    <input type="password" id="pw-inp" style="width:100%;padding:8px;margin:10px 0;background:var(--surface2);border:1px solid var(--border);color:white">
+    <div id="pw-err" style="color:var(--buy);font-size:0.8rem;margin-top:4px"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="hideModal()">取消</button>
+      <button class="btn btn-primary" id="pw-ok">確認</button>
+    </div>
+  `);
+  const check = () => {
+    if (document.getElementById('pw-inp').value === '0918216001') { hideModal(); onSuccess(); }
+    else document.getElementById('pw-err').textContent = '密碼錯誤';
+  };
+  document.getElementById('pw-ok').onclick = check;
+  document.getElementById('pw-inp').onkeyup = (e) => { if (e.key === 'Enter') check(); };
+}
+
+window.confirmDel = function(id) {
+  showModal(`
+    <h3>⚠️ 確認刪除</h3>
+    <p>確定要刪除此筆保單記錄嗎？</p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="hideModal()">取消</button>
+      <button class="btn btn-danger" id="del-yes">確定</button>
+    </div>
+  `);
+  document.getElementById('del-yes').onclick = async () => {
+    var res = await apiPost('/delete', { _id: id });
+    if (res.ok) { hideModal(); fetchData(); }
+  };
+};
+
+function rowFormHtml(r, title) {
+  r = r || {};
+  const v = f => r[f] !== undefined ? r[f] : '';
+  return `
+    <h3>${title}</h3>
+    <div class="form-grid">
+      <div class="form-group full"><label>保單名稱</label><input id="f-name" value="${v('name')}"></div>
+      <div class="form-group"><label>成交日</label><input id="f-date" value="${v('date')}"></div>
+      <div class="form-group"><label>保單號碼</label><input id="f-policyNumber" value="${v('policyNumber')}"></div>
+      <div class="form-group"><label>繳費年期</label><input id="f-years" value="${v('years')}"></div>
+      <div class="form-group"><label>年繳保費</label><input id="f-annualPremium" value="${v('annualPremium')}"></div>
+      <div class="form-group"><label>累計繳費</label><input id="f-accumulatedPremium" value="${v('accumulatedPremium')}"></div>
+      <div class="form-group"><label>滿期年</label><input id="f-maturityYear" value="${v('maturityYear')}"></div>
+      <div class="form-group">
+        <label>是否滿期</label>
+        <select id="f-isMatured">
+          <option value="">-- 選擇 --</option>
+          <option value="是" ${v('isMatured')==='是'?'selected':''}>是</option>
+          <option value="否" ${v('isMatured')==='否'?'selected':''}>否</option>
+        </select>
+      </div>
+      <div class="form-group"><label>滿期金</label><input id="f-maturityAmount" value="${v('maturityAmount')}"></div>
+      <div class="form-group"><label>2025領回</label><input id="f-returnNov2025" value="${v('returnNov2025')}"></div>
+      <div class="form-group">
+        <label>保險公司</label>
+        <select id="f-company">
+          <option value="">-- 選擇 --</option>
+          <option value="國泰" ${v('company')==='國泰'?'selected':''}>國泰</option>
+          <option value="台灣人壽" ${v('company')==='台灣人壽'?'selected':''}>台灣人壽</option>
+          <option value="中國人壽" ${v('company')==='中國人壽'?'selected':''}>中國人壽</option>
+          <option value="富邦" ${v('company')==='富邦'?'selected':''}>富邦</option>
+          <option value="南山" ${v('company')==='南山'?'selected':''}>南山</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>保險人</label>
+        <select id="f-insured">
+          <option value="">-- 選擇 --</option>
+          <option value="Alex" ${v('insured')==='Alex'?'selected':''}>Alex</option>
+          <option value="Mark" ${v('insured')==='Mark'?'selected':''}>Mark</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>經手人</label>
+        <select id="f-agent" onchange="toggleAgentOther(this)">
+          <option value="">-- 選擇 --</option>
+          <option value="金" ${v('agent')==='金'?'selected':''}>金</option>
+          <option value="琪" ${v('agent')==='琪'?'selected':''}>琪</option>
+          <option value="__other__" ${(v('agent')&&v('agent')!=='金'&&v('agent')!=='琪')?'selected':''}>其他</option>
+        </select>
+        <input id="f-agent-other" placeholder="請輸入經手人" value="${(v('agent')&&v('agent')!=='金'&&v('agent')!=='琪')?v('agent'):''}" style="margin-top:6px;display:${(v('agent')&&v('agent')!=='金'&&v('agent')!=='琪')?'block':'none'};background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:7px 10px;border-radius:6px;font-size:0.82rem;width:100%">
+      </div>
+      <div class="form-group full"><label>備註</label><textarea id="f-memo" rows="3">${v('memo')}</textarea></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="hideModal()">取消</button>
+      <button class="btn btn-primary" id="form-save">儲存</button>
+    </div>
+  `;
+}
+
+window.showAddModal = function() {
+  showModal(rowFormHtml(null, '＋ 新增保單'));
+  document.getElementById('form-save').onclick = async function() {
+    var btn = this; if (btn.disabled) return; btn.disabled = true; btn.textContent = '儲存中...';
+    var d = {
+      name: document.getElementById('f-name').value, date: document.getElementById('f-date').value,
+      policyNumber: document.getElementById('f-policyNumber').value, years: document.getElementById('f-years').value,
+      annualPremium: document.getElementById('f-annualPremium').value, accumulatedPremium: document.getElementById('f-accumulatedPremium').value,
+      maturityYear: document.getElementById('f-maturityYear').value, isMatured: document.getElementById('f-isMatured').value,
+      maturityAmount: document.getElementById('f-maturityAmount').value,
+      returnNov2025: document.getElementById('f-returnNov2025').value,
+      company: document.getElementById('f-company').value,
+      insured: document.getElementById('f-insured').value,
+      agent: getAgentValue(),
+      memo: document.getElementById('f-memo').value
+    };
+    try {
+      var res = await apiPost('/add', d);
+      if (res.ok) { hideModal(); fetchData(); }
+      else { alert('儲存失敗：' + (res.error || '')); btn.disabled = false; btn.textContent = '儲存'; }
+    } catch (e) { alert(e.message || '發生錯誤'); btn.disabled = false; btn.textContent = '儲存'; }
+  };
+};
+
+window.showEditModal = function(id) {
+  var r = data.find(x => x._id === id);
+  showModal(rowFormHtml(r, '✏️ 修改保單'));
+  document.getElementById('form-save').onclick = async function() {
+    var btn = this; if (btn.disabled) return; btn.disabled = true; btn.textContent = '儲存中...';
+    var d = {
+      _id: id, name: document.getElementById('f-name').value, date: document.getElementById('f-date').value,
+      policyNumber: document.getElementById('f-policyNumber').value, years: document.getElementById('f-years').value,
+      annualPremium: document.getElementById('f-annualPremium').value, accumulatedPremium: document.getElementById('f-accumulatedPremium').value,
+      maturityYear: document.getElementById('f-maturityYear').value, isMatured: document.getElementById('f-isMatured').value,
+      maturityAmount: document.getElementById('f-maturityAmount').value,
+      returnNov2025: document.getElementById('f-returnNov2025').value,
+      company: document.getElementById('f-company').value,
+      insured: document.getElementById('f-insured').value,
+      agent: getAgentValue(),
+      memo: document.getElementById('f-memo').value
+    };
+    try {
+      var res = await apiPost('/update', d);
+      if (res.ok) { hideModal(); fetchData(); }
+      else { alert('儲存失敗：' + (res.error || '')); btn.disabled = false; btn.textContent = '儲存'; }
+    } catch (e) { alert(e.message || '發生錯誤'); btn.disabled = false; btn.textContent = '儲存'; }
+  };
+};
+
+window.toggleAgentOther = function(sel) {
+  var inp = document.getElementById('f-agent-other');
+  inp.style.display = sel.value === '__other__' ? 'block' : 'none';
+  if (sel.value !== '__other__') inp.value = '';
+};
+
+function getAgentValue() {
+  var sel = document.getElementById('f-agent');
+  if (sel.value === '__other__') return document.getElementById('f-agent-other').value.trim();
+  return sel.value;
+}
+
+document.getElementById('f-search').oninput = () => render();
+fetchData();
+</script>
+</body>
+</html>

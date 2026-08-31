@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>組織架構圖 - AlexAnalyze</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+TC:wght@300;400;700&display=swap" rel="stylesheet">
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  <style>
+    :root {
+      --bg: #121212;
+      --card: #1e1e1e;
+      --border: #333;
+      --text: #e0e0e0;
+      --muted: #a0a0a0;
+      --accent: #42A5F5;
+      --purple: #9c27b0;
+      --gold: #ffd700;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 40px;
+    }
+
+    .header-row {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 32px;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 20px;
+    }
+
+    .back-btn {
+      display: inline-block;
+      padding: 8px 20px;
+      background: #1e293b;
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      border-radius: 999px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      white-space: nowrap;
+      transition: background 0.2s;
+    }
+    .back-btn:hover { background: var(--accent); color: #fff; }
+
+    h1 {
+      font-size: 2rem;
+      color: var(--purple);
+    }
+
+    /* ── Tabs ── */
+    .tab-bar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+
+    .tab-btn {
+      padding: 10px 20px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--card);
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-family: inherit;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    .tab-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .tab-btn.active {
+      background: var(--purple);
+      border-color: var(--purple);
+      color: #fff;
+      font-weight: 700;
+    }
+
+    /* ── Chart panels ── */
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    .chart-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 8px 16px rgba(0,0,0,.3);
+    }
+
+    .chart-card h2 {
+      font-size: 1.1rem;
+      color: var(--gold);
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 10px;
+    }
+
+    /* Override Google OrgChart default white bg */
+    .chart-wrap {
+      background: #fff;
+      border-radius: 8px;
+      padding: 12px;
+      overflow: auto;
+      display: flex;
+      justify-content: center;
+    }
+    .chart-wrap > div {
+      display: inline-block;
+    }
+
+    /* 節點文字：黑色粗體放大 */
+    .chart-wrap table.google-visualization-orgchart-table td {
+      color: #000 !important;
+      font-weight: 800 !important;
+      font-size: 1rem !important;
+    }
+
+    .lvl3-box {
+      font-size: 1.2rem;
+      font-weight: 900;
+      min-width: 180px;
+      display: inline-block;
+      padding: 4px 8px;
+    }
+
+    .note {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-top: 12px;
+    }
+    .note span { color: #ef9a9a; }
+  </style>
+</head>
+<body>
+
+  <div class="header-row">
+    <h1>🏢 組織架構圖</h1>
+  </div>
+
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('ddt')">數位應用開發 Team 組織圖</button>
+    <button class="tab-btn" onclick="switchTab('ddt-out')">數位應用開發 外包顧問</button>
+  </div>
+
+  <!-- Panel 7 -->
+  <div id="panel-ddt" class="tab-panel active">
+    <div class="chart-card">
+      <h2>數位應用開發 Team 組織圖 (Alex)</h2>
+      <div class="chart-wrap"><div id="chart_ddt"></div></div>
+      <p class="note">紅色斜體為職稱 / 角色。<span>已隱藏歷史成員（ASP 程式碼中 // 註解）</span></p>
+    </div>
+  </div>
+
+  <!-- Panel 8 -->
+  <div id="panel-ddt-out" class="tab-panel">
+    <div class="chart-card">
+      <h2>數位應用開發 外包顧問</h2>
+      <div class="chart-wrap"><div id="chart_ddt_out"></div></div>
+      <p class="note">紅色斜體為職稱 / 角色。</p>
+    </div>
+  </div>
+
+
+
+
+
+  <script>
+    /* ── Tab 切換 ── */
+    function switchTab(id) {
+      document.querySelectorAll('.tab-btn').forEach((b, i) => {
+        const ids = ['ddt','ddt-out'];
+        b.classList.toggle('active', ids[i] === id);
+      });
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      document.getElementById('panel-' + id).classList.add('active');
+    }
+
+    /* ── Google Charts ── */
+    google.charts.load('current', { packages: ['orgchart'] });
+    google.charts.setOnLoadCallback(drawAllCharts);
+
+    function makeOrgChart(divId, rows) {
+      var data = new google.visualization.DataTable();
+      data.addColumn('string', 'Name');
+      data.addColumn('string', 'Manager');
+      data.addColumn('string', 'ToolTip');
+      data.addRows(rows);
+      var chart = new google.visualization.OrgChart(document.getElementById(divId));
+      chart.draw(data, { allowHtml: true });
+    }
+
+    function drawAllCharts() {
+
+      /* ── 7. DDT 組織圖 ── */
+      makeOrgChart('chart_ddt', [
+        [{'v':'數位應用開發team', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">1. </span>數位應用開發team<div style="color:red;font-style:italic">alex</div>'}, '', 'Manager'],
+        [{'v':'票務網', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">2. </span>票務網<div style="color:red;font-style:italic">peter/anne</div>'}, '數位應用開發team', '票務網'],
+        [{'v':'AWS架構', 'f':'<div style="font-size:1.1rem;font-weight:900;color:#1565C0;padding:4px 12px;border:2px dashed #42A5F5;border-radius:6px;background:#e3f2fd;">☁️ AWS架構</div>'}, '票務網', ''],
+        [{'v':'ibon票務資訊網(D系統)', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">15. </span><div class="lvl3-box">ibon票務資訊網<br>(D系統)</div>'}, 'AWS架構', ''],
+        [{'v':'webb<div style="color:red;font-style:italic">SA</div>', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">16. </span>webb<div style="color:red;font-style:italic">SA</div>'}, 'ibon票務資訊網(D系統)', ''],
+        [{'v':'jim<div style="color:red;font-style:italic">PG</div>', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">17. </span>jim<div style="color:red;font-style:italic">PG</div>'}, 'webb<div style="color:red;font-style:italic">SA</div>', ''],
+        [{'v':'ibon票務訂單平台(A系統)', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">3. </span><div class="lvl3-box">ibon票務訂單平台<br>(A系統)</div>'}, 'AWS架構', ''],
+        [{'v':'mog<div style="color:red;font-style:italic">SA</div>', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">4. </span>mog<div style="color:red;font-style:italic">SA</div>'}, 'ibon票務訂單平台(A系統)', ''],
+        [{'v':'peter<div style="color:red;font-style:italic">SA</div>', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">5. </span>peter<div style="color:red;font-style:italic">SA</div>'}, 'ibon票務訂單平台(A系統)', ''],
+        [{'v':'jim<div style="color:red;font-style:italic">PG</div>', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">28. </span>jim<div style="color:red;font-style:italic">PG</div>'}, 'peter<div style="color:red;font-style:italic">SA</div>', ''],
+        [{'v':'kurt<div style="color:red;font-style:italic">PG</div>', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">37. </span>kurt<div style="color:red;font-style:italic">PG</div>'}, 'peter<div style="color:red;font-style:italic">SA</div>', ''],
+        [{'v':'chris<div style="color:red;font-style:italic">PG</div>', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">6. </span>chris<div style="color:red;font-style:italic">PG</div>'}, 'mog<div style="color:red;font-style:italic">SA</div>', ''],
+        [{'v':'nick<div style="color:red;font-style:italic">PG</div>', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">7. </span>nick<div style="color:red;font-style:italic">PG</div>'}, 'mog<div style="color:red;font-style:italic">SA</div>', ''],
+        [{'v':'自主上架平台(E系統)', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">8. </span><div class="lvl3-box">自主上架平台<br>(E系統)</div>'}, 'AWS架構', ''],
+        [{'v':'kevin<div style="color:red;font-style:italic">SA</div>', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">9. </span>kevin<div style="color:red;font-style:italic">SA</div>'}, '自主上架平台(E系統)', ''],
+        [{'v':'darren<div style="color:red;font-style:italic">PG</div>', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">29. </span>darren<div style="color:red;font-style:italic">PG</div>'}, 'kevin<div style="color:red;font-style:italic">SA</div>', ''],
+        [{'v':'高鐵加購(K系統)', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">10. </span><div class="lvl3-box">高鐵加購<br>(K系統)</div>'}, 'AWS架構', ''],
+        [{'v':'nick3<div style="color:red;font-style:italic">PG</div>', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">11. </span>nick<div style="color:red;font-style:italic">PG</div>'}, '高鐵加購(K系統)', ''],
+        [{'v':'auzre架構', 'f':'<div style="font-size:1.1rem;font-weight:900;color:#0078D4;padding:4px 12px;border:2px dashed #0078D4;border-radius:6px;background:#f0f8ff;">☁️ Azure架構</div>'}, '票務網', ''],
+        [{'v':'社群登入平台', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">12. </span><div class="lvl3-box">社群登入平台</div>'}, 'auzre架構', ''],
+        [{'v':'jimmy2<div style="color:red;font-style:italic">SA</div>', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">13. </span>jimmy<div style="color:red;font-style:italic">SA</div>'}, '社群登入平台', ''],
+        [{'v':'james<div style="color:red;font-style:italic">PG</div>', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">14. </span>james<div style="color:red;font-style:italic">PG</div>'}, 'jimmy2<div style="color:red;font-style:italic">SA</div>', ''],
+
+        [{'v':'Queue-it/cloudflare/雲端架構', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">21. </span><div class="lvl3-box">Queue-it/cloudflare/<br>雲端架構</div>'}, '票務網', ''],
+        [{'v':'jimmy3<div style="color:red;font-style:italic">SA</div>', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">22. </span>jimmy<div style="color:red;font-style:italic">SA</div>'}, 'Queue-it/cloudflare/雲端架構', ''],
+        [{'v':'nick_q<div style="color:red;font-style:italic">PG</div>', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">36. </span>nick<div style="color:red;font-style:italic">PG</div>'}, 'jimmy3<div style="color:red;font-style:italic">SA</div>', ''],
+        [{'v':'webb_q<div style="color:red;font-style:italic">SA</div>', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">30. </span>webb<div style="color:red;font-style:italic">SA</div>'}, 'nick_q<div style="color:red;font-style:italic">PG</div>', ''],
+        [{'v':'jim_q<div style="color:red;font-style:italic">PG</div>', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">31. </span>jim<div style="color:red;font-style:italic">PG</div>'}, 'webb_q<div style="color:red;font-style:italic">SA</div>', ''],
+        [{'v':'kevin_q<div style="color:red;font-style:italic">SA</div>', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">32. </span>kevin<div style="color:red;font-style:italic">SA</div>'}, 'jim_q<div style="color:red;font-style:italic">PG</div>', ''],
+        [{'v':'darren_q<div style="color:red;font-style:italic">PG</div>', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">33. </span>darren<div style="color:red;font-style:italic">PG</div>'}, 'kevin_q<div style="color:red;font-style:italic">SA</div>', ''],
+        [{'v':'peter_q<div style="color:red;font-style:italic">SA</div>', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">34. </span>peter<div style="color:red;font-style:italic">SA</div>'}, 'darren_q<div style="color:red;font-style:italic">PG</div>', ''],
+        [{'v':'chris_q<div style="color:red;font-style:italic">PG</div>', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">35. </span>chris<div style="color:red;font-style:italic">PG</div>'}, 'peter_q<div style="color:red;font-style:italic">SA</div>', ''],
+        [{'v':'PM群', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">23. </span><div class="lvl3-box">PM群</div>'}, '票務網', ''],
+        [{'v':'tammy<div style="color:red;font-style:italic">PM</div>', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">24. </span>tammy<div style="color:red;font-style:italic">PM</div>'}, 'PM群', ''],
+        [{'v':'ida<div style="color:red;font-style:italic">PM</div>', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">25. </span>ida<div style="color:red;font-style:italic">PM</div>'}, 'tammy<div style="color:red;font-style:italic">PM</div>', ''],
+        [{'v':'dolly<div style="color:red;font-style:italic">PM</div>', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">26. </span>dolly<div style="color:red;font-style:italic">PM</div>'}, 'ida<div style="color:red;font-style:italic">PM</div>', ''],
+        [{'v':'amber<div style="color:red;font-style:italic">PM</div>', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">27. </span>amber<div style="color:red;font-style:italic">PM</div>'}, 'dolly<div style="color:red;font-style:italic">PM</div>', ''],
+      ]);
+
+      /* ── 8. DDT 外包人力 ── */
+      makeOrgChart('chart_ddt_out', [
+        [{'v':'數位應用開發team', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">1. </span>數位應用開發team<div style="color:red;font-style:italic">alex</div>'}, '', 'Manager'],
+        [{'v':'自主上架', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">2. </span><div class="lvl3-box">自主上架<div style="color:red;font-style:italic;font-size:0.9rem;">電獺</div></div>'}, '數位應用開發team', ''],
+        [{'v':'D系統擴充', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">3. </span><div class="lvl3-box">D系統擴充<div style="color:red;font-style:italic;font-size:0.9rem;">一帆</div></div>'}, '數位應用開發team', ''],
+        [{'v':'球隊APP', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">4. </span><div class="lvl3-box">球隊APP<div style="color:red;font-style:italic;font-size:0.9rem;">一帆</div></div>'}, '數位應用開發team', ''],
+        [{'v':'精誠顧問', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">5. </span><div class="lvl3-box">精誠顧問</div>'}, '數位應用開發team', ''],
+        [{'v':'kevin_out<div style="color:red;font-style:italic">SA</div>', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">11. </span>kevin<div style="color:red;font-style:italic">SA</div>'}, '精誠顧問', ''],
+        [{'v':'Acer顧問', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">7. </span><div class="lvl3-box">Acer顧問</div>'}, '數位應用開發team', ''],
+        [{'v':'peter_out2<div style="color:red;font-style:italic">SA</div>', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">12. </span>peter<div style="color:red;font-style:italic">SA</div>'}, 'Acer顧問', ''],
+        [{'v':'kevin<div style="color:red;font-style:italic">SA</div>', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">6. </span>kevin<div style="color:red;font-style:italic">SA</div>'}, '自主上架', ''],
+        [{'v':'jimmy_out1<BR><div style="color:red;font-style:italic">SA</div>', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">9. </span>jimmy<BR><div style="color:red;font-style:italic">SA</div>'}, 'D系統擴充', ''],
+        [{'v':'jimmy_out2<BR><div style="color:red;font-style:italic">SA</div>', 'f':'<span style="color:#888;font-size:0.75rem;font-weight:400;">10. </span>jimmy<BR><div style="color:red;font-style:italic">SA</div>'}, '球隊APP', ''],
+      ]);
+
+
+
+
+
+    }
+  </script>
+
+</body>
+</html>
