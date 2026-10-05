@@ -923,6 +923,21 @@
             </div>
         </div>
 
+
+        <section id="expenses-2025" class="expense-summary" style="background:var(--card-bg);border:1px solid var(--card-border);border-radius:16px;overflow:hidden;margin-bottom:28px;box-shadow:var(--shadow);" aria-labelledby="expenses-2025-title">
+            <div class="trip-header"><h2 id="expenses-2025-title" style="font-size:1.3rem;">2025 年機票與飯店花費統計 <span class="en">Flight &amp; Hotel Expenses</span></h2></div>
+            <div style="padding:18px 22px;">
+                <div style="overflow-x:auto;">
+                    <table style="min-width:440px;table-layout:auto;" aria-label="2025 年各幣別花費">
+                        <thead><tr><th>幣別</th><th>機票</th><th>飯店</th><th>合計</th></tr></thead>
+                        <tbody id="expenses-2025-body"></tbody>
+                    </table>
+                </div>
+                <p id="expenses-2025-rewards" class="note" style="margin-top:16px;"></p>
+                <p class="note" style="margin-top:12px;font-size:0.85rem;">統計 2025 分頁所有旅客與飯店紀錄（含跨年大阪旅程），按原幣別加總，未換算匯率。積分依體系、哩程依航空分列，不折算現金。往返票價只計已填金額；空白或「—」不計入，因此為已記錄花費。相同飯店的多筆訂房各自計入；備註「實際只收」且可辨識幣別者，以實收金額計算。編輯後自動更新。</p>
+            </div>
+        </section>
+
     </div><!-- /tab-2025 -->
 
 </div>
@@ -1532,6 +1547,7 @@ function updateLastUpdatedDisplay(ts) {
 }
 
 function updateSummaryStats() {
+    update2025Expenses();
     document.querySelectorAll('.tab-content').forEach(function(tab) {
         var trips = Array.from(tab.querySelectorAll('.trip')).filter(function(t) {
             return t.style.display !== 'none';
@@ -1575,6 +1591,62 @@ function updateSummaryStats() {
             summaryCards[3].style.fontSize = airList.length > 20 ? '0.85rem' : (airList.length > 12 ? '1rem' : '1.1rem');
         }
     });
+}
+
+function update2025Expenses() {
+    var tab = document.getElementById('tab-2025');
+    var body = document.getElementById('expenses-2025-body');
+    if (!tab || !body) return;
+    var cash = { flight: {}, hotel: {} }, rewards = {};
+    function add(bucket, key, amount) { bucket[key] = (bucket[key] || 0) + amount; }
+    function amounts(text, bucket) {
+        var currencies = /(?:NT\s*\$|TWD|THB|JPY|USD)\s*([\d,]+(?:\.\d+)?)/gi;
+        var match;
+        while ((match = currencies.exec(text))) {
+            var code = match[0].match(/^(?:NT\s*\$|TWD|THB|JPY|USD)/i)[0].toUpperCase();
+            add(bucket, /^NT|TWD/.test(code) ? 'TWD' : code, Number(match[1].replace(/,/g, '')));
+        }
+        var baht = /([\d,]+(?:\.\d+)?)\s*฿/g;
+        while ((match = baht.exec(text))) add(bucket, 'THB', Number(match[1].replace(/,/g, '')));
+    }
+    tab.querySelectorAll('.trip').forEach(function(trip) {
+        if (trip.style.display === 'none') return;
+        trip.querySelectorAll('table').forEach(function(table) {
+            var hotel = !!table.closest('.hotel-section');
+            var headers = Array.from(table.querySelectorAll('thead th:not(.th-copy):not(.th-actions)'));
+            var priceIndex = headers.findIndex(function(th) { return /票價|價錢|Fare|Price/i.test(th.textContent); });
+            table.querySelectorAll('tbody tr').forEach(function(row) {
+                if (row.style.display === 'none') return;
+                var cells = Array.from(row.querySelectorAll('td:not(.td-copy):not(.row-actions)'));
+                var price = priceIndex >= 0 && cells[priceIndex] ? cells[priceIndex].textContent : '';
+                var notes = cells.map(function(td) { return td.textContent; }).join(' ');
+                var actual = hotel && notes.match(/實際只收\s*([\d,]+(?:\.\d+)?)/);
+                var currency = price.match(/NT\s*\$|TWD|THB|JPY|USD|฿/i);
+                if (actual && currency) {
+                    amounts(currency[0] === '฿' ? actual[1] + ' ฿' : currency[0] + ' ' + actual[1], cash.hotel);
+                } else {
+                    amounts(price, cash[hotel ? 'hotel' : 'flight']);
+                }
+                var points = /([\d,]+)\s*(?:P(?:oints?)?\b|積分|點)/gi, match;
+                var chain = hotel && row.querySelector('.hotel-system');
+                while ((match = points.exec(price))) add(rewards, (hotel ? '飯店 · ' + (chain ? chain.textContent.trim() : '未指定體系') : '機票') + ' 積分', Number(match[1].replace(/,/g, '')));
+                // Miles can be recorded in either fare or payment, but count each cell once.
+                cells.forEach(function(td) {
+                    var miles = /(?:(ANA|亞洲萬里通)\s*)?([\d,]+)\s*[哩里]/gi;
+                    while ((match = miles.exec(td.textContent))) add(rewards, (match[1] || '未指定航空') + ' 哩程', Number(match[2].replace(/,/g, '')));
+                });
+            });
+        });
+    });
+    function num(value) { return (value || 0).toLocaleString('zh-TW', { maximumFractionDigits: 2 }); }
+    body.innerHTML = ['TWD', 'THB', 'JPY', 'USD'].filter(function(code) {
+        return cash.flight[code] || cash.hotel[code];
+    }).map(function(code) {
+        return '<tr><td>' + code + '</td><td>' + num(cash.flight[code]) + '</td><td>' + num(cash.hotel[code]) + '</td><td class="price">' + num((cash.flight[code] || 0) + (cash.hotel[code] || 0)) + '</td></tr>';
+    }).join('');
+    document.getElementById('expenses-2025-rewards').textContent = Object.keys(rewards).map(function(key) {
+        return key + '：' + num(rewards[key]);
+    }).join(' ｜ ') || '無積分或哩程紀錄';
 }
 
 /* ── MongoDB sync helpers ───────────────────────────────────── */
