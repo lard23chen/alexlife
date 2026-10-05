@@ -1383,134 +1383,27 @@
     </div><!-- /tab-2022 -->
 
     <!-- ══════════════════ 總表 TAB ══════════════════ -->
-    <div id="tab-grand" class="tab-content">
 
-        <div class="trip">
+    <div id="tab-grand" class="tab-content">
+        <section class="expense-summary" style="background:var(--card-bg);border:1px solid var(--card-border);border-radius:16px;overflow:hidden;box-shadow:var(--shadow);" aria-labelledby="grand-summary-title">
             <div class="trip-header">
                 <span class="trip-num" style="background:var(--accent2);">總表</span>
-                <div><div class="trip-dest">年度旅程費用統計</div><div class="trip-dates">Annual Summary · 2022–2027</div></div>
+                <div><h2 id="grand-summary-title" style="font-size:1.45rem;">年度旅程費用統計</h2><div class="en">Annual Summary · 2022–2027</div></div>
             </div>
-            <div class="table-wrap">
-                <table style="min-width:860px;">
-                    <colgroup>
-                        <col style="width:70px">
-                        <col style="width:55px">
-                        <col style="width:60px">
-                        <col style="width:200px">
-                        <col style="width:130px">
-                        <col style="width:105px">
-                        <col style="width:105px">
-                        <col style="width:70px">
-                        <col style="width:200px">
-                    </colgroup>
-                    <thead>
-                        <tr>
-                            <th>年份</th>
-                            <th>旅程數</th>
-                            <th>國家</th>
-                            <th>國家 / 趟數</th>
-                            <th>NT$ / TWD</th>
-                            <th>¥ JPY</th>
-                            <th>฿ THB</th>
-                            <th>HK$</th>
-                            <th>哩程 / 點數</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-
-                        <tr style="background:#dbeafe;">
-                            <td style="font-weight:800;color:#0284c7;">2027</td>
-                            <td class="note" style="color:#0284c7;font-weight:700;">2</td>
-                            <td class="note" style="color:#0284c7;font-weight:700;">2 國</td>
-                            <td class="note">🇹🇭 泰國 ×1　🇯🇵 日本 ×1</td>
-                            <td class="price">NT$33,858<div class="note">機票（待補住宿）</div></td>
-                            <td class="dash">—</td>
-                            <td class="note" style="color:var(--text-muted);">待補</td>
-                            <td class="dash">—</td>
-                            <td class="note">CI 35,000 里</td>
-                        </tr>
-
-                        <tr>
-                            <td style="font-weight:800;color:#0284c7;">2026</td>
-                            <td class="note" style="color:#0284c7;font-weight:700;">6</td>
-                            <td class="note" style="color:#0284c7;font-weight:700;">3 國</td>
-                            <td class="note">🇹🇭 泰國 ×4　🇯🇵 日本 ×1　🇮🇩 印尼 ×1</td>
-                            <td class="price">NT$101,317</td>
-                            <td class="price">¥236,164</td>
-                            <td class="price">฿355,970 +</td>
-                            <td class="price">HK$1,310</td>
-                            <td class="note">IHG 131,300 P<br>長榮 42,500 P<br>亞萬 26,000 里</td>
-                        </tr>
-
-                        <tr style="background:#f8fafc;">
-                            <td style="font-weight:700;color:#64748b;">2025</td>
-                            <td class="note" style="font-weight:700;">5</td>
-                            <td class="note" style="font-weight:700;">2 國</td>
-                            <td class="note">🇹🇭 泰國 ×3　🇯🇵 日本 ×2</td>
-                            <td class="price">NT$150,912</td>
-                            <td class="price">¥230,327</td>
-                            <td class="price">฿369,150</td>
-                            <td class="dash">—</td>
-                            <td class="note">IHG ~278,800 P<br>Hilton 144,000 P<br>ANA 20,000 里<br>亞萬 25,000 里</td>
-                        </tr>
-
-                        <tr>
-                            <td style="font-weight:700;color:#64748b;">2024</td>
-                            <td class="note" style="font-weight:700;">7</td>
-                            <td class="note" style="font-weight:700;">4 國</td>
-                            <td class="note">🇹🇭 泰國 ×3　🇯🇵 日本 ×1　🇩🇪 德國 ×1　🇹🇼 台灣 ×2</td>
-                            <td class="price">NT$60,378<div class="note">住宿未完整記錄</div></td>
-                            <td class="dash">—</td>
-                            <td class="price">฿12,830</td>
-                            <td class="dash">—</td>
-                            <td class="note">長榮哩程兌換 ×2<br>ANA 20,000 里</td>
-                        </tr>
-
-                        <tr style="background:#f8fafc;">
-                            <td style="font-weight:700;color:#64748b;">2023</td>
-                            <td class="note" style="font-weight:700;">4</td>
-                            <td class="note" style="font-weight:700;">1 國</td>
-                            <td class="note">🇹🇭 泰國 ×4</td>
-                            <td class="price">NT$87,125<div class="note">住宿未完整記錄</div></td>
-                            <td class="dash">—</td>
-                            <td class="price">฿4,513</td>
-                            <td class="dash">—</td>
-                            <td class="note">長榮 100,000 里<br>商務艙 ×2</td>
-                        </tr>
-
-                        <tr>
-                            <td style="font-weight:700;color:#64748b;">2022</td>
-                            <td class="note" style="font-weight:700;">1</td>
-                            <td class="note" style="font-weight:700;">1 國</td>
-                            <td class="note">🇯🇵 日本 ×1</td>
-                            <td class="price">NT$29,828</td>
-                            <td class="dash">—</td>
-                            <td class="dash">—</td>
-                            <td class="dash">—</td>
-                            <td class="dash">—</td>
-                        </tr>
-
-                        <tr style="background:#f0fdf4;">
-                            <td style="font-weight:800;color:#059669;">合計</td>
-                            <td class="note" style="color:#059669;font-weight:800;">25</td>
-                            <td class="note" style="color:#059669;font-weight:800;">5 國</td>
-                            <td class="note" style="color:#059669;">🇹🇭 ×15　🇯🇵 ×8　🇩🇪 ×1　🇮🇩 ×1　🇹🇼 ×2 (Frank)</td>
-                            <td class="price" style="color:#059669;font-weight:700;">NT$463,418+</td>
-                            <td class="price" style="color:#059669;font-weight:700;">¥466,491</td>
-                            <td class="price" style="color:#059669;font-weight:700;">฿742,463+</td>
-                            <td class="price" style="color:#059669;font-weight:700;">HK$1,310</td>
-                            <td class="note" style="color:#059669;font-weight:700;">IHG ~410,100 P<br>Hilton 144,000 P<br>長榮 142,500+ P<br>ANA 40,000 里<br>亞萬 51,000 里<br>CI 35,000 里</td>
-                        </tr>
-
-                    </tbody>
+            <div style="overflow-x:auto;">
+                <table style="min-width:1180px;table-layout:auto;" aria-label="各年度機票與飯店花費總表">
+                    <thead><tr><th>年份</th><th>旅程數</th><th>國家／趟數</th><th>TWD 台幣</th><th>JPY 日圓</th><th>THB 泰銖</th><th>HKD 港幣</th><th>USD 美金</th><th>積分／哩程</th></tr></thead>
+                    <tbody id="grand-summary-body"></tbody>
                 </table>
             </div>
-            <div style="padding:10px 22px 16px;color:#94a3b8;font-size:0.8rem;line-height:1.6;">
-                ※ NT$/TWD 含機票 + 台幣計價住宿（ALEX + MARK 合計）。2023–2024 住宿費用未完整記錄，金額僅供參考。哩程/點數僅列已使用部分。
+            <div class="note" style="padding:16px 22px;font-size:0.85rem;line-height:1.7;">
+                <p>每格上方為該幣別合計，下方分列機票與飯店。機票含各年度所有已列旅客（ALEX、MARK、FRANK 等），飯店含所有已列訂房，未按人分攤。</p>
+                <p>依年度分頁明細自動更新，跨年旅程歸於所在分頁。各幣別分開加總，不換算匯率；括號內換算參考金額不重複計入。往返票價只計已填金額，空白、「—」及「如上」不另計。飯店備註「實際只收」以實收金額計算。</p>
+                <p>積分按體系、哩程按航空分列，僅加總明確填寫的數字。2023–2024 住宿資料不完整，其他年度也可能有待補資料；表內為已記錄金額。國家趟數依旅程標題的國旗統計。</p>
             </div>
-        </div>
-
+        </section>
     </div><!-- /tab-grand -->
+
 
 <script>
 function switchTab(year, btn) {
@@ -1557,6 +1450,7 @@ function updateLastUpdatedDisplay(ts) {
 
 function updateSummaryStats() {
     update2025Expenses();
+    updateGrandSummary();
     document.querySelectorAll('.tab-content').forEach(function(tab) {
         var trips = Array.from(tab.querySelectorAll('.trip')).filter(function(t) {
             return t.style.display !== 'none';
@@ -1602,21 +1496,25 @@ function updateSummaryStats() {
     });
 }
 
-function update2025Expenses() {
-    var tab = document.getElementById('tab-2025');
-    var body = document.getElementById('expenses-2025-body');
-    if (!tab || !body) return;
+function collectYearExpenses(tab) {
     var cash = { flight: {}, hotel: {} }, rewards = {}, passengers = {};
     function add(bucket, key, amount) { bucket[key] = (bucket[key] || 0) + amount; }
     function amounts(text, bucket) {
-        var currencies = /(?:NT\s*\$|TWD|THB|JPY|USD)\s*([\d,]+(?:\.\d+)?)/gi;
-        var match;
-        while ((match = currencies.exec(text))) {
-            var code = match[0].match(/^(?:NT\s*\$|TWD|THB|JPY|USD)/i)[0].toUpperCase();
-            add(bucket, /^NT|TWD/.test(code) ? 'TWD' : code, Number(match[1].replace(/,/g, '')));
-        }
-        var baht = /([\d,]+(?:\.\d+)?)\s*฿/g;
-        while ((match = baht.exec(text))) add(bucket, 'THB', Number(match[1].replace(/,/g, '')));
+        var aliases = { 'NT$': 'TWD', 'NT $': 'TWD', 'HK$': 'HKD', '฿': 'THB', '¥': 'JPY' };
+        // Parenthesized currency equivalents are explanatory, not a second charge.
+        text = text.replace(/\([^)]*(?:NT\s*\$|TWD|THB|JPY|USD|HKD|HK\$)[^)]*\)/gi, '');
+        text.split(/\s*\+\s*/).forEach(function(part, i, parts) {
+            var prefix = part.match(/(NT\s*\$|TWD|THB|JPY|USD|HKD|HK\$)\s*([\d,]+(?:\.\d+)?)/i);
+            var suffix = part.match(/([\d,]+(?:\.\d+)?)\s*(THB|JPY|USD|TWD|HKD|฿|¥)/i);
+            var code, value;
+            if (prefix) { code = prefix[1].toUpperCase(); value = prefix[2]; }
+            else if (suffix) { code = suffix[2].toUpperCase(); value = suffix[1]; }
+            else if (/^\s*[\d,]+(?:\.\d+)?\s*$/.test(part) && parts[i + 1]) {
+                var nextCurrency = parts[i + 1].match(/THB|JPY|USD|TWD|HKD|฿|¥/i);
+                if (nextCurrency) { code = nextCurrency[0].toUpperCase(); value = part.trim(); }
+            }
+            if (code) add(bucket, aliases[code] || (/^NT/.test(code) ? 'TWD' : code), Number(value.replace(/,/g, '')));
+        });
     }
     tab.querySelectorAll('.trip').forEach(function(trip) {
         if (trip.style.display === 'none') return;
@@ -1636,7 +1534,9 @@ function update2025Expenses() {
             table.querySelectorAll('tbody tr').forEach(function(row) {
                 if (row.style.display === 'none') return;
                 var cells = Array.from(row.querySelectorAll('td:not(.td-copy):not(.row-actions)'));
-                var price = priceIndex >= 0 && cells[priceIndex] ? cells[priceIndex].textContent : '';
+                var priceCell = priceIndex >= 0 && cells[priceIndex] ? cells[priceIndex].cloneNode(true) : null;
+                if (priceCell) priceCell.querySelectorAll('.note, .en').forEach(function(note) { note.remove(); });
+                var price = priceCell ? priceCell.textContent : '';
                 var notes = cells.map(function(td) { return td.textContent; }).join(' ');
                 var actual = hotel && notes.match(/實際只收\s*([\d,]+(?:\.\d+)?)/);
                 var currency = price.match(/NT\s*\$|TWD|THB|JPY|USD|฿/i);
@@ -1646,17 +1546,29 @@ function update2025Expenses() {
                     amounts(price, cash[hotel ? 'hotel' : 'flight']);
                     if (!hotel) amounts(price, passengers[passenger]);
                 }
-                var points = /([\d,]+)\s*(?:P(?:oints?)?\b|積分|點)/gi, match;
                 var chain = hotel && row.querySelector('.hotel-system');
-                while ((match = points.exec(price))) add(rewards, (hotel ? '飯店 · ' + (chain ? chain.textContent.trim() : '未指定體系') : '機票') + ' 積分', Number(match[1].replace(/,/g, '')));
-                // Miles can be recorded in either fare or payment, but count each cell once.
-                cells.forEach(function(td) {
-                    var miles = /(?:(ANA|亞洲萬里通)\s*)?([\d,]+)\s*[哩里]/gi;
-                    while ((match = miles.exec(td.textContent))) add(rewards, (match[1] || '未指定航空') + ' 哩程', Number(match[2].replace(/,/g, '')));
+                var provider = hotel ? '飯店 · ' + (chain ? chain.textContent.trim() : '未指定體系') :
+                    (/長榮/.test(price) ? '長榮' : /CI|華航/.test(price) ? '華航' : '未指定航空');
+                var points = /([\d,]+)\s*(?:P(?:oints?)?\b|積分|點)|(?:Points?|點數|積分)\s*([\d,]+)/gi, match;
+                while ((match = points.exec(price))) add(rewards, provider + ' 積分', Number((match[1] || match[2]).replace(/,/g, '')));
+                var paymentIndex = headers.findIndex(function(th) { return /支付|Payment/i.test(th.textContent); });
+                var flightNo = row.querySelector('.flight-no');
+                var airline = flightNo && flightNo.textContent.trim().slice(0, 2);
+                [price, paymentIndex >= 0 && cells[paymentIndex] ? cells[paymentIndex].textContent : ''].forEach(function(rewardText) {
+                    var miles = /(?:(ANA|亞洲萬里通|長榮|CI|華航)\s*)?([\d,]+)\s*[哩里]|[哩里](?:程)?\s*([\d,]+)/gi;
+                    while ((match = miles.exec(rewardText))) add(rewards, (match[1] || (/ANA/.test(rewardText) ? 'ANA' : /亞洲萬里通/.test(rewardText) ? '亞洲萬里通' : /長榮/.test(rewardText) ? '長榮' : /CI|華航/.test(rewardText) || airline === 'CI' ? '華航' : '未指定航空')) + ' 哩程', Number((match[2] || match[3]).replace(/,/g, '')));
                 });
+
             });
         });
     });
+    return { cash: cash, rewards: rewards, passengers: passengers };
+}
+
+function update2025Expenses() {
+    var tab = document.getElementById('tab-2025'), body = document.getElementById('expenses-2025-body');
+    if (!tab || !body) return;
+    var data = collectYearExpenses(tab), cash = data.cash, rewards = data.rewards, passengers = data.passengers;
     function num(value) { return (value || 0).toLocaleString('zh-TW', { maximumFractionDigits: 2 }); }
     body.innerHTML = ['TWD', 'THB', 'JPY', 'USD'].filter(function(code) {
         return cash.flight[code] || cash.hotel[code];
@@ -1675,6 +1587,56 @@ function update2025Expenses() {
     document.getElementById('expenses-2025-rewards').textContent = Object.keys(rewards).map(function(key) {
         return key + '：' + num(rewards[key]);
     }).join(' ｜ ') || '無積分或哩程紀錄';
+}
+
+function updateGrandSummary() {
+    var body = document.getElementById('grand-summary-body');
+    if (!body) return;
+    body.innerHTML = '';
+    var total = { cash: { flight: {}, hotel: {} }, rewards: {} }, tripTotal = 0, countries = {};
+    var countryNames = { '🇹🇭': '泰國', '🇯🇵': '日本', '🇩🇪': '德國', '🇹🇼': '台灣', '🇮🇩': '印尼' };
+    function merge(target, source) { Object.keys(source).forEach(function(key) { target[key] = (target[key] || 0) + source[key]; }); }
+    function num(value) { return (value || 0).toLocaleString('zh-TW', { maximumFractionDigits: 2 }); }
+    function addRow(year, count, countryCounts, data) {
+        var row = document.createElement('tr');
+        function cell(text, className) { var td = document.createElement('td'); td.textContent = text; if (className) td.className = className; row.appendChild(td); return td; }
+        cell(year);
+        cell(count);
+        cell(Object.keys(countryCounts).length + ' 國\n' + Object.keys(countryCounts).map(function(flag) {
+            return flag + ' ' + (countryNames[flag] || '') + ' ×' + countryCounts[flag];
+        }).join('\n')).style.whiteSpace = 'pre-line';
+        ['TWD', 'JPY', 'THB', 'HKD', 'USD'].forEach(function(code) {
+            var flight = data.cash.flight[code] || 0, hotel = data.cash.hotel[code] || 0;
+            var td = cell(flight || hotel ? num(flight + hotel) : '—', flight || hotel ? 'price' : 'dash');
+            if (flight || hotel) {
+                var detail = document.createElement('div'); detail.className = 'note';
+                detail.style.cssText = 'font-size:0.78rem;white-space:normal;';
+                detail.textContent = '機票 ' + num(flight) + ' ／ 飯店 ' + num(hotel);
+                td.appendChild(detail);
+            }
+        });
+        var reward = cell(Object.keys(data.rewards).map(function(key) { return key + ' ' + num(data.rewards[key]); }).join('\n') || '—', 'note');
+        reward.style.whiteSpace = 'pre-line';
+        if (year === '合計') row.style.cssText = 'background:#f0fdf4;font-weight:700;';
+        body.appendChild(row);
+    }
+    Array.from(document.querySelectorAll('.tab-content')).filter(function(tab) {
+        return /^tab-\d{4}$/.test(tab.id);
+    }).sort(function(a, b) { return b.id.localeCompare(a.id); }).forEach(function(tab) {
+        var trips = Array.from(tab.querySelectorAll('.trip')).filter(function(trip) { return trip.style.display !== 'none'; });
+        var counts = {};
+        trips.forEach(function(trip) {
+            var dest = trip.querySelector('.trip-dest');
+            var flags = dest ? dest.textContent.match(/[\u{1F1E6}-\u{1F1FF}]{2}/gu) : [];
+            Array.from(new Set(flags || [])).forEach(function(flag) { counts[flag] = (counts[flag] || 0) + 1; });
+        });
+        var data = collectYearExpenses(tab);
+        addRow(tab.id.slice(4), trips.length, counts, data);
+        tripTotal += trips.length;
+        merge(countries, counts);
+        merge(total.cash.flight, data.cash.flight); merge(total.cash.hotel, data.cash.hotel); merge(total.rewards, data.rewards);
+    });
+    addRow('合計', tripTotal, countries, total);
 }
 
 /* ── MongoDB sync helpers ───────────────────────────────────── */
