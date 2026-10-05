@@ -927,14 +927,23 @@
         <section id="expenses-2025" class="expense-summary" style="background:var(--card-bg);border:1px solid var(--card-border);border-radius:16px;overflow:hidden;margin-bottom:28px;box-shadow:var(--shadow);" aria-labelledby="expenses-2025-title">
             <div class="trip-header"><h2 id="expenses-2025-title" style="font-size:1.3rem;">2025 年機票與飯店花費統計 <span class="en">Flight &amp; Hotel Expenses</span></h2></div>
             <div style="padding:18px 22px;">
+                <h3 style="font-size:1rem;margin-bottom:10px;">現金花費總表</h3>
                 <div style="overflow-x:auto;">
-                    <table style="min-width:440px;table-layout:auto;" aria-label="2025 年各幣別花費">
-                        <thead><tr><th>幣別</th><th>機票</th><th>飯店</th><th>合計</th></tr></thead>
+                    <table style="min-width:560px;table-layout:auto;" aria-label="2025 年各幣別花費">
+                        <thead><tr><th>幣別</th><th>機票（所有旅客）</th><th>飯店（所有訂房）</th><th>現金合計</th></tr></thead>
                         <tbody id="expenses-2025-body"></tbody>
                     </table>
                 </div>
+                <h3 style="font-size:1rem;margin:22px 0 10px;">機票旅客明細</h3>
+                <div style="overflow-x:auto;">
+                    <table style="min-width:560px;table-layout:auto;" aria-label="2025 年各旅客機票花費">
+                        <thead><tr><th>旅客</th><th>TWD 台幣</th><th>THB 泰銖</th><th>JPY 日圓</th><th>USD 美金</th></tr></thead>
+                        <tbody id="expenses-2025-passengers"></tbody>
+                    </table>
+                </div>
+                <h3 style="font-size:1rem;margin:22px 0 10px;">積分與哩程</h3>
                 <p id="expenses-2025-rewards" class="note" style="margin-top:16px;"></p>
-                <p class="note" style="margin-top:12px;font-size:0.85rem;">統計 2025 分頁所有旅客與飯店紀錄（含跨年大阪旅程），按原幣別加總，未換算匯率。積分依體系、哩程依航空分列，不折算現金。往返票價只計已填金額；空白或「—」不計入，因此為已記錄花費。相同飯店的多筆訂房各自計入；備註「實際只收」且可辨識幣別者，以實收金額計算。編輯後自動更新。</p>
+                <p class="note" style="margin-top:12px;font-size:0.85rem;">機票含 ALEX、MARK、FRANK 等所有已列旅客；各人金額見上方明細。飯店為所有訂房總額，未按旅客分攤。統計 2025 分頁紀錄（含跨年大阪旅程），按原幣別加總，未換算匯率。積分依體系、哩程依航空分列，不折算現金。往返票價只計已填金額；空白或「—」不計入，因此為已記錄花費。相同飯店的多筆訂房各自計入；備註「實際只收」且可辨識幣別者，以實收金額計算。編輯後自動更新。</p>
             </div>
         </section>
 
@@ -1597,7 +1606,7 @@ function update2025Expenses() {
     var tab = document.getElementById('tab-2025');
     var body = document.getElementById('expenses-2025-body');
     if (!tab || !body) return;
-    var cash = { flight: {}, hotel: {} }, rewards = {};
+    var cash = { flight: {}, hotel: {} }, rewards = {}, passengers = {};
     function add(bucket, key, amount) { bucket[key] = (bucket[key] || 0) + amount; }
     function amounts(text, bucket) {
         var currencies = /(?:NT\s*\$|TWD|THB|JPY|USD)\s*([\d,]+(?:\.\d+)?)/gi;
@@ -1613,6 +1622,15 @@ function update2025Expenses() {
         if (trip.style.display === 'none') return;
         trip.querySelectorAll('table').forEach(function(table) {
             var hotel = !!table.closest('.hotel-section');
+            var passenger = '未指定旅客';
+            if (!hotel) {
+                var label = table.closest('.table-wrap');
+                label = label ? label.previousElementSibling : null;
+                while (label && !label.classList.contains('passenger-label')) label = label.previousElementSibling;
+                var badge = label && label.querySelector('.p-badge');
+                if (badge) passenger = badge.textContent.trim();
+                if (!passengers[passenger]) passengers[passenger] = {};
+            }
             var headers = Array.from(table.querySelectorAll('thead th:not(.th-copy):not(.th-actions)'));
             var priceIndex = headers.findIndex(function(th) { return /票價|價錢|Fare|Price/i.test(th.textContent); });
             table.querySelectorAll('tbody tr').forEach(function(row) {
@@ -1626,6 +1644,7 @@ function update2025Expenses() {
                     amounts(currency[0] === '฿' ? actual[1] + ' ฿' : currency[0] + ' ' + actual[1], cash.hotel);
                 } else {
                     amounts(price, cash[hotel ? 'hotel' : 'flight']);
+                    if (!hotel) amounts(price, passengers[passenger]);
                 }
                 var points = /([\d,]+)\s*(?:P(?:oints?)?\b|積分|點)/gi, match;
                 var chain = hotel && row.querySelector('.hotel-system');
@@ -1644,6 +1663,15 @@ function update2025Expenses() {
     }).map(function(code) {
         return '<tr><td>' + code + '</td><td>' + num(cash.flight[code]) + '</td><td>' + num(cash.hotel[code]) + '</td><td class="price">' + num((cash.flight[code] || 0) + (cash.hotel[code] || 0)) + '</td></tr>';
     }).join('');
+    var passengerBody = document.getElementById('expenses-2025-passengers');
+    passengerBody.innerHTML = '';
+    Object.keys(passengers).forEach(function(name) {
+        var row = document.createElement('tr');
+        [name].concat(['TWD', 'THB', 'JPY', 'USD'].map(function(code) {
+            return passengers[name][code] ? num(passengers[name][code]) : '—';
+        })).forEach(function(value) { var cell = document.createElement('td'); cell.textContent = value; row.appendChild(cell); });
+        passengerBody.appendChild(row);
+    });
     document.getElementById('expenses-2025-rewards').textContent = Object.keys(rewards).map(function(key) {
         return key + '：' + num(rewards[key]);
     }).join(' ｜ ') || '無積分或哩程紀錄';
