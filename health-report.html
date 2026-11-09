@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="zh-Hant-TW"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>健康存摺趨勢｜待原始資料核對</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#eef5f3;color:#163331;font:16px/1.65 system-ui,sans-serif}main{max-width:980px;margin:auto;padding:clamp(14px,4vw,42px)}header,section,footer{padding:clamp(16px,4vw,30px);border-radius:16px;background:white;margin-bottom:16px}header{background:#103e39;color:white}h1,h2,p{margin:0 0 .65em}h1{font-size:clamp(1.65rem,5vw,2.8rem)}h2{font-size:1.35rem}small{font-size:.82rem}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,310px),1fr));gap:12px}figure{margin:0;padding:12px;background:#f1f7f6;border-radius:10px}figcaption{font-weight:700}svg{display:block;width:100%;height:auto}svg text{text-anchor:middle;font:13px system-ui;fill:#163331}.notice{border-left:5px solid #a46012}a{color:#075f57}li+li{margin-top:.4em}
+</style>
+    <!-- Password Protection -->
+    <style>
+        #pw-overlay {
+            position: fixed; inset: 0; z-index: 9999;
+            background: #0a0a0a;
+            display: flex; align-items: center; justify-content: center;
+        }
+        #pw-box {
+            text-align: center;
+            font-family: 'Outfit', sans-serif;
+            padding: 48px 40px;
+            background: #1e1e1e;
+            border-radius: 16px;
+            border: 1px solid #333;
+            min-width: 320px;
+        }
+        #pw-box .icon { font-size: 4rem; margin-bottom: 16px; }
+        #pw-box h2 { color: #9c27b0; margin: 0 0 8px; font-size: 1.6rem; }
+        #pw-box p  { color: #94a3b8; margin: 0 0 24px; font-size: 0.9rem; }
+        #pw-input {
+            width: 100%; box-sizing: border-box;
+            padding: 12px 16px; font-size: 1.1rem;
+            background: #121212; color: #e0e0e0;
+            border: 2px solid #444; border-radius: 8px;
+            outline: none; letter-spacing: 0.15em;
+            margin-bottom: 14px;
+            transition: border-color 0.2s;
+        }
+        #pw-input:focus { border-color: #9c27b0; }
+        #pw-input.shake {
+            animation: shake 0.35s ease;
+            border-color: #ef4444;
+        }
+        @keyframes shake {
+            0%,100%{transform:translateX(0)}
+            20%{transform:translateX(-8px)}
+            40%{transform:translateX(8px)}
+            60%{transform:translateX(-6px)}
+            80%{transform:translateX(6px)}
+        }
+        #pw-btn {
+            width: 100%; padding: 12px;
+            background: #9c27b0; color: #fff;
+            border: none; border-radius: 8px;
+            font-size: 1rem; font-weight: 700;
+            cursor: pointer; transition: background 0.2s;
+        }
+        #pw-btn:hover { background: #7b1fa2; }
+        #pw-err { color: #ef4444; font-size: 0.85rem; margin-top: 10px; min-height: 1.2em; }
+    </style>
+    <script>
+        (function () {
+            var KEY = 'alex_life_auth';
+            var HASH = '5f3a8e2b1c9d4f7e6a0b2c5d8e1f4a7b'; // marker only; real check below
+
+            function unlock() {
+                var el = document.getElementById('pw-overlay');
+                if (el) el.remove();
+            }
+
+            function verify(pw) {
+                // Simple client-side check — good enough for personal convenience
+                return pw === atob('MDkxODIxNjAwMQ==');
+            }
+
+            function trySubmit() {
+                var pw = document.getElementById('pw-input').value;
+                if (verify(pw)) {
+                    sessionStorage.setItem(KEY, '1');
+                    unlock();
+                } else {
+                    var inp = document.getElementById('pw-input');
+                    inp.classList.remove('shake');
+                    void inp.offsetWidth;
+                    inp.classList.add('shake');
+                    document.getElementById('pw-err').textContent = '密碼錯誤，請再試一次';
+                    inp.value = '';
+                    inp.focus();
+                }
+            }
+
+            document.addEventListener('DOMContentLoaded', function () {
+                if (sessionStorage.getItem(KEY) === '1') { unlock(); return; }
+                document.getElementById('pw-input').addEventListener('keydown', function (e) {
+                    if (e.key === 'Enter') trySubmit();
+                });
+                document.getElementById('pw-btn').addEventListener('click', trySubmit);
+                document.getElementById('pw-input').focus();
+            });
+        })();
+    </script>
+<style>#pw-box{min-width:0;width:min(92vw,400px)}</style></head><body>
+    <!-- Password overlay -->
+    <div id="pw-overlay">
+        <div id="pw-box">
+            <div class="icon">🏠</div>
+            <h2>健康檢驗趨勢</h2>
+            <p>請輸入密碼以繼續</p>
+            <input id="pw-input" type="password" placeholder="密碼" autocomplete="off">
+            <button id="pw-btn">進入</button>
+            <div id="pw-err"></div>
+        </div>
+    </div><main><header><p>健康存摺 · 2023–2026 查核範圍</p><h1>健康檢驗趨勢</h1><p>待核對版｜目前可整理 2026 年 3 月至 11 月的舊對話摘要</p></header>
+<section class="notice"><h2>資料完整性</h2><p>舊對話僅回傳文字，原始截圖無法檢視。2023–2025 年無可核對數值，2026 年也可能有漏列。日期、數值與部分單位沿用舊摘要。圖表每個日期只呈現摘要中一個對應點，原始檢驗是否重複仍待查。</p><p>補件時以採檢日期、院所、完整檢驗名稱、檢體、單位、結果與檢驗識別碼核對重複列。同日不同檢體或不同結果需分列。截斷名稱及未知單位保留原樣，分開比對。</p></section>
+<section><h2>摘要</h2><ul><li>8 月至 11 月 HbA1c 由 6.3% 降至 5.6%，下降 0.7 個百分點。空腹血糖由 109 降至 95 mg/dL。若已確診糖尿病，這反映治療期間的血糖控制，無法據此認定緩解。</li><li>LDL 由 3 月 85 降至 11 月 60 mg/dL，約下降 29%，中間有波動。是否符合個人目標需依心血管風險與病史判斷。11 月 HDL 39 mg/dL 低於常用成人參考門檻，三酸甘油酯 72、總膽固醇 106 mg/dL。這三項目前只有一筆可用摘要。</li><li>肌酸酐未呈持續上升。eGFR 84 → 89 → 103 → 92，最後一次低於 8 月但高於 3 月。水分、肌肉量與檢驗差異都可能影響估值，需搭配尿白蛋白評估。</li></ul></section>
+<section><h2>2026 年趨勢圖</h2><p>各圖縱向尺度獨立，僅呈現舊摘要中的數值。缺值留空。</p><div class="grid"><figure><figcaption>HbA1c <small>%</small></figcaption><svg viewBox="0 0 372 144" role="img" aria-label="HbA1c：03/02 6.2，05/23 6.2，08/15 6.3，11/07 5.6"><path d="M25 115H350" stroke="#b5c9c5"/><polyline points="42,45.999999999999964 135.48,45.999999999999964 231.23999999999998,36 327,106" fill="none" stroke="#087b70" stroke-width="3"/><circle cx="42" cy="45.999999999999964" r="4" fill="#087b70"/><text x="42" y="35.999999999999964">6.2</text><text x="42" y="135">03/02</text><circle cx="135.48" cy="45.999999999999964" r="4" fill="#087b70"/><text x="135.48" y="35.999999999999964">6.2</text><text x="135.48" y="135">05/23</text><circle cx="231.23999999999998" cy="36" r="4" fill="#087b70"/><text x="231.23999999999998" y="26">6.3</text><text x="231.23999999999998" y="135">08/15</text><circle cx="327" cy="106" r="4" fill="#087b70"/><text x="327" y="96">5.6</text><text x="327" y="135">11/07</text></svg></figure><figure><figcaption>空腹血糖 <small>mg/dL</small></figcaption><svg viewBox="0 0 372 144" role="img" aria-label="空腹血糖：05/23 100，08/15 109，11/07 95"><path d="M25 115H350" stroke="#b5c9c5"/><polyline points="135.48,81 231.23999999999998,36 327,106" fill="none" stroke="#087b70" stroke-width="3"/><circle cx="135.48" cy="81" r="4" fill="#087b70"/><text x="135.48" y="71">100</text><text x="135.48" y="135">05/23</text><circle cx="231.23999999999998" cy="36" r="4" fill="#087b70"/><text x="231.23999999999998" y="26">109</text><text x="231.23999999999998" y="135">08/15</text><circle cx="327" cy="106" r="4" fill="#087b70"/><text x="327" y="96">95</text><text x="327" y="135">11/07</text></svg></figure><figure><figcaption>LDL <small>mg/dL</small></figcaption><svg viewBox="0 0 372 144" role="img" aria-label="LDL：03/02 85，05/23 57，08/15 65，11/07 60"><path d="M25 115H350" stroke="#b5c9c5"/><polyline points="42,36 135.48,106 231.23999999999998,86 327,98.5" fill="none" stroke="#087b70" stroke-width="3"/><circle cx="42" cy="36" r="4" fill="#087b70"/><text x="42" y="26">85</text><text x="42" y="135">03/02</text><circle cx="135.48" cy="106" r="4" fill="#087b70"/><text x="135.48" y="96">57</text><text x="135.48" y="135">05/23</text><circle cx="231.23999999999998" cy="86" r="4" fill="#087b70"/><text x="231.23999999999998" y="76">65</text><text x="231.23999999999998" y="135">08/15</text><circle cx="327" cy="98.5" r="4" fill="#087b70"/><text x="327" y="88.5">60</text><text x="327" y="135">11/07</text></svg></figure><figure><figcaption>肌酸酐 <small>mg/dL（待核對）</small></figcaption><svg viewBox="0 0 372 144" role="img" aria-label="肌酸酐：03/02 1.06，05/23 1.01，08/15 0.89，11/07 0.99"><path d="M25 115H350" stroke="#b5c9c5"/><polyline points="42,36 135.48,56.58823529411766 231.23999999999998,106 327,64.82352941176472" fill="none" stroke="#087b70" stroke-width="3"/><circle cx="42" cy="36" r="4" fill="#087b70"/><text x="42" y="26">1.06</text><text x="42" y="135">03/02</text><circle cx="135.48" cy="56.58823529411766" r="4" fill="#087b70"/><text x="135.48" y="46.58823529411766">1.01</text><text x="135.48" y="135">05/23</text><circle cx="231.23999999999998" cy="106" r="4" fill="#087b70"/><text x="231.23999999999998" y="96">0.89</text><text x="231.23999999999998" y="135">08/15</text><circle cx="327" cy="64.82352941176472" r="4" fill="#087b70"/><text x="327" y="54.823529411764724">0.99</text><text x="327" y="135">11/07</text></svg></figure><figure><figcaption>eGFR <small>mL/min/1.73 m²</small></figcaption><svg viewBox="0 0 372 144" role="img" aria-label="eGFR：03/02 84，05/23 89，08/15 103，11/07 92"><path d="M25 115H350" stroke="#b5c9c5"/><polyline points="42,106 135.48,87.57894736842105 231.23999999999998,36 327,76.52631578947368" fill="none" stroke="#087b70" stroke-width="3"/><circle cx="42" cy="106" r="4" fill="#087b70"/><text x="42" y="96">84</text><text x="42" y="135">03/02</text><circle cx="135.48" cy="87.57894736842105" r="4" fill="#087b70"/><text x="135.48" y="77.57894736842105">89</text><text x="135.48" y="135">05/23</text><circle cx="231.23999999999998" cy="36" r="4" fill="#087b70"/><text x="231.23999999999998" y="26">103</text><text x="231.23999999999998" y="135">08/15</text><circle cx="327" cy="76.52631578947368" r="4" fill="#087b70"/><text x="327" y="66.52631578947368">92</text><text x="327" y="135">11/07</text></svg></figure><figure><figcaption>疑似 ALT <small>單位待核對</small></figcaption><svg viewBox="0 0 372 144" role="img" aria-label="疑似 ALT：05/23 30，08/15 32，11/07 41"><path d="M25 115H350" stroke="#b5c9c5"/><polyline points="135.48,106 231.23999999999998,93.27272727272727 327,36" fill="none" stroke="#087b70" stroke-width="3"/><circle cx="135.48" cy="106" r="4" fill="#087b70"/><text x="135.48" y="96">30</text><text x="135.48" y="135">05/23</text><circle cx="231.23999999999998" cy="93.27272727272727" r="4" fill="#087b70"/><text x="231.23999999999998" y="83.27272727272727">32</text><text x="231.23999999999998" y="135">08/15</text><circle cx="327" cy="36" r="4" fill="#087b70"/><text x="327" y="26">41</text><text x="327" y="135">11/07</text></svg></figure></div></section>
+<section class="notice"><h2>異常與待確認項目</h2><ul><li><strong>HDL 39。</strong>回診時與血壓、吸菸史、病史及其他血脂一起評估。</li><li><strong>疑似 ALT 30 → 32 → 41。</strong>原項目名稱截斷。先確認是 ALT、AST 或其他檢驗，再核對單位、實驗室上限及是否需要複驗。現有資料無法判定肝臟異常或藥物因果。</li><li><strong>微白蛋白 8.30、5.0。</strong>兩列名稱截斷，保留為待查紀錄。尿白蛋白濃度與尿白蛋白／肌酸酐比（UACR）是不同量測，需完整名稱、檢體及單位才能判讀。</li></ul></section>
+<section><h2>GLP-1 用藥與追蹤</h2><p>血糖下降與 GLP-1 類藥物的預期效果相符。因品名、劑量、起始日及調藥日期未知，無法估計藥物貢獻。飲食、活動與體重也可能影響血糖及血脂。回診可攜帶藥袋及體重變化紀錄。</p><p>留意噁心、腹瀉、便祕及嘔吐。若持續劇烈腹痛（尤其延伸至背部）、右上腹痛伴發燒或黃疸，或反覆嘔吐而無法補水、尿量明顯減少，應儘速就醫。合併胰島素或磺醯脲類時，低血糖風險較高。用藥警示以實際品項及醫囑為準。</p><p>近期調藥或未達個人血糖目標，可與醫師討論約三個月後複查 HbA1c。已達標且穩定的糖尿病患者通常至少每年評估兩次。若確診第二型糖尿病，通常至少每年檢測 eGFR 及定量 UACR。疑似 ALT、血脂和尿檢的追蹤時間由醫師依原始報告及風險安排。</p></section>
+<footer><h2>醫療免責與參考資料</h2><p>本報告供回診討論與資料整理使用。診斷、個人目標與處方調整由醫療團隊評估。請勿自行停藥或調整劑量。</p><ul><li><a href="https://diabetesjournals.org/care/article/49/Supplement_1/S132/163927/6-Glycemic-Goals-Hypoglycemia-and-Hyperglycemic">ADA 2026 血糖目標與追蹤</a></li><li><a href="https://diabetesjournals.org/care/article/49/Supplement_1/S246/163914/11-Chronic-Kidney-Disease-and-Risk-Management">ADA 2026 腎功能及 UACR</a></li><li><a href="https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=ee06186f-2aa3-4990-a760-757579d8f77b">DailyMed 仿單範例（semaglutide）</a></li></ul></footer></main></body></html>
