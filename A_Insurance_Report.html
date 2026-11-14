@@ -167,6 +167,9 @@ body.edit-on .act-btn{display:inline-block}
 
   <div class="filters">
     <input type="text" id="f-search" placeholder="搜尋保單名稱…" style="width:200px">
+    <select id="filter-company" aria-label="保險公司" onchange="render()">
+      <option value="">保險公司：全部</option>
+    </select>
     <select id="f-matured" onchange="render()">
       <option value="">是否滿期：全部</option>
       <option value="是">是</option>
@@ -370,7 +373,18 @@ function sortRows(rows) {
   });
 }
 
+function renderCompanyFilter() {
+  var select = document.getElementById('filter-company');
+  var selected = select.value;
+  var companies = Array.from(new Set(data.map(r => (r.company || '').trim()).filter(Boolean)));
+  companies.sort((a, b) => (COMPANY_ORDER[a] ?? 3) - (COMPANY_ORDER[b] ?? 3) || a.localeCompare(b, 'zh-TW'));
+  select.replaceChildren(new Option('保險公司：全部', ''));
+  companies.forEach(company => select.add(new Option(company, company)));
+  if (companies.includes(selected)) select.value = selected;
+}
+
 function render() {
+  renderCompanyFilter();
   var filtered = sortRows(applyFilters(data));
   renderStats(filtered);
   renderTable(filtered);
@@ -401,9 +415,11 @@ function renderStats(rows) {
 function applyFilters(rows) {
   var s = document.getElementById('f-search').value.toLowerCase();
   var m = document.getElementById('f-matured').value;
+  var company = document.getElementById('filter-company').value;
   return rows.filter(r => {
     if (s && !(r.name && r.name.toLowerCase().includes(s))) return false;
     if (m && r.isMatured !== m) return false;
+    if (company && (r.company || '').trim() !== company) return false;
     return true;
   });
 }
@@ -411,6 +427,7 @@ function applyFilters(rows) {
 function resetFilters() {
   document.getElementById('f-search').value = '';
   document.getElementById('f-matured').value = '';
+  document.getElementById('filter-company').value = '';
   render();
 }
 
