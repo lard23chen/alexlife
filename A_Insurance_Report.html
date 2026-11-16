@@ -224,9 +224,11 @@ body.edit-on .act-btn{display:inline-block}
         <tr>
           <th>#</th>
           <th>保單名稱</th>
-          <th>成交日</th>
+          <th>成交／投保日</th>
           <th>保單號碼</th>
           <th>年期</th>
+          <th>國泰繳費期數／投報率</th>
+          <th>國泰現金／帳戶價值</th>
           <th class="num">年繳保費</th>
           <th class="num">累計繳費</th>
           <th>滿期年</th>
@@ -386,6 +388,7 @@ async function fetchData() {
         readOnly = true;
         setSyncState('error', '載入失敗');
         console.error(fErr);
+        render();
     }
   }
 }
@@ -413,10 +416,30 @@ function sortRows(rows) {
   });
 }
 
-function renderCompanyFilter() {
+function mergeCathayPolicies(rows) {
+  const snapshot = document.getElementById('cathay-snapshot').closest('section');
+  const policies = new Map(Array.from(snapshot.querySelectorAll('details:first-of-type tbody tr'), row => {
+    const [name, policyNumber, date, cathayValue, cathayProgress] = Array.from(row.cells, cell => cell.textContent.trim());
+    return [policyNumber, { name, policyNumber, date, cathayValue, cathayProgress, company: '國泰' }];
+  }));
+  const seen = new Set();
+  const merged = rows.map(row => {
+    const number = String(row.policyNumber ?? '').replace(/^\s*#?\s*/, '').trim();
+    const match = policies.get(number);
+    if (!match) return row;
+    seen.add(number);
+    return { ...row, ...match };
+  });
+  policies.forEach((row, number) => {
+    if (!seen.has(number)) merged.push(row);
+  });
+  return merged;
+}
+
+function renderCompanyFilter(rows) {
   var select = document.getElementById('filter-company');
   var selected = select.value;
-  var companies = Array.from(new Set(data.map(r => (r.company || '').trim()).filter(Boolean)));
+  var companies = Array.from(new Set(rows.map(r => (r.company || '').trim()).filter(Boolean)));
   companies.sort((a, b) => (COMPANY_ORDER[a] ?? 3) - (COMPANY_ORDER[b] ?? 3) || a.localeCompare(b, 'zh-TW'));
   select.replaceChildren(new Option('保險公司：全部', ''));
   companies.forEach(company => select.add(new Option(company, company)));
@@ -424,8 +447,9 @@ function renderCompanyFilter() {
 }
 
 function render() {
-  renderCompanyFilter();
-  var filtered = sortRows(applyFilters(data));
+  const rows = mergeCathayPolicies(data);
+  renderCompanyFilter(rows);
+  var filtered = sortRows(applyFilters(rows));
   renderStats(filtered);
   renderTable(filtered);
 }
@@ -482,6 +506,8 @@ function renderTable(rows) {
         <td class="muted">${r.date || '-'}</td>
         <td><span style="color:var(--accent);font-weight:700">${r.policyNumber || '-'}</span></td>
         <td>${r.years || '-'}</td>
+        <td>${r.cathayProgress || '-'}</td>
+        <td style="text-align:right">${r.cathayValue || '-'}</td>
         <td style="text-align:right">${r.annualPremium || '-'}</td>
         <td style="text-align:right">${r.accumulatedPremium || '-'}</td>
         <td class="muted">${r.maturityYear || '-'}</td>
@@ -493,8 +519,8 @@ function renderTable(rows) {
         <td>${r.agent || '-'}</td>
         <td class="muted" style="white-space:normal;max-width:250px;font-size:0.75rem">${r.memo || '-'}</td>
         <td class="act-btn-cell" style="display:none">
-          <button class="act-btn act-edit" onclick="showEditModal('${r._id}')">編輯</button>
-          <button class="act-btn act-del" onclick="confirmDel('${r._id}')">刪除</button>
+          ${r._id ? `<button class="act-btn act-edit" onclick="showEditModal('${r._id}')">編輯</button>
+          <button class="act-btn act-del" onclick="confirmDel('${r._id}')">刪除</button>` : '<span class="muted">國泰快照</span>'}
         </td>
       </tr>
     `;
