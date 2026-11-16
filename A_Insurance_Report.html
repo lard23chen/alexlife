@@ -520,7 +520,9 @@ function renderTable(rows) {
         <td>${r.company || '-'}</td>
         <td>${r.insured || '-'}</td>
         <td>${r.agent || '-'}</td>
-        <td class="muted" style="white-space:normal;max-width:250px;font-size:0.75rem">${r.memo || '-'}</td>
+        <td class="muted" style="white-space:normal;max-width:250px;font-size:0.75rem"><span class="policy-memo-text"></span>
+          ${!readOnly && r._id ? '<button type="button" class="act-btn act-edit policy-memo-edit">修改備註</button>' : ''}
+        </td>
         <td class="act-btn-cell" style="display:none">
           ${r._id ? `<button class="act-btn act-edit" onclick="showEditModal('${r._id}')">編輯</button>
           <button class="act-btn act-del" onclick="confirmDel('${r._id}')">刪除</button>` : '<span class="muted">國泰快照</span>'}
@@ -529,6 +531,12 @@ function renderTable(rows) {
     `;
   });
   document.getElementById('insurance-body').innerHTML = html;
+  document.querySelectorAll('#insurance-body tr').forEach((tr, index) => {
+    const row = rows[index];
+    tr.querySelector('.policy-memo-text').textContent = row.memo || '-';
+    const button = tr.querySelector('.policy-memo-edit');
+    if (button) button.addEventListener('click', () => showMemoModal(row));
+  });
   
   // Refresh edit buttons visibility
   if(editOn) {
@@ -559,6 +567,34 @@ window.toggleEditMode = function() {
     });
   }
 };
+
+function showMemoModal(row) {
+  showModal(`
+    <h3>修改保單備註</h3>
+    <div class="form-group"><label for="policy-memo">備註</label><textarea id="policy-memo" rows="4"></textarea></div>
+    <p id="policy-memo-error" role="alert"></p>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-secondary" onclick="hideModal()">取消</button>
+      <button type="button" class="btn btn-primary" id="policy-memo-save">儲存</button>
+    </div>
+  `);
+  const input = document.getElementById('policy-memo');
+  const save = document.getElementById('policy-memo-save');
+  input.value = row.memo ?? '';
+  input.focus();
+  save.onclick = async () => {
+    save.disabled = true;
+    try {
+      const result = await apiPost('/update', { _id: row._id, memo: input.value });
+      if (!result.ok) throw new Error(result.error || '儲存失敗');
+      hideModal();
+      await fetchData();
+    } catch (error) {
+      document.getElementById('policy-memo-error').textContent = error.message || '儲存失敗';
+      save.disabled = false;
+    }
+  };
+}
 
 function showModal(html) {
   document.getElementById('crud-dialog').innerHTML = html;
@@ -653,7 +689,7 @@ function rowFormHtml(r, title) {
         </select>
         <input id="f-agent-other" placeholder="請輸入經手人" value="${(v('agent')&&v('agent')!=='金'&&v('agent')!=='琪')?v('agent'):''}" style="margin-top:6px;display:${(v('agent')&&v('agent')!=='金'&&v('agent')!=='琪')?'block':'none'};background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:7px 10px;border-radius:6px;font-size:0.82rem;width:100%">
       </div>
-      <div class="form-group full"><label>備註</label><textarea id="f-memo" rows="3">${v('memo')}</textarea></div>
+      <div class="form-group full"><label>備註</label><textarea id="f-memo" rows="3">${String(v('memo')).replaceAll('&', '&amp;').replaceAll('<', '&lt;')}</textarea></div>
     </div>
     <div class="modal-actions">
       <button class="btn btn-secondary" onclick="hideModal()">取消</button>
