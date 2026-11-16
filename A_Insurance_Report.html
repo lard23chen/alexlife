@@ -353,7 +353,6 @@ body.edit-on .act-btn{display:inline-block}
 const host = window.location.hostname;
 const isLocalFile = window.location.protocol === 'file:';
 const returnYear = new Intl.DateTimeFormat('en', { timeZone: 'Asia/Taipei', year: 'numeric' }).format(new Date());
-const returnField = returnYear === '2025' ? 'returnNov2025' : 'return' + returnYear;
 document.getElementById('return-year-heading').textContent = returnYear + '領回';
 
 const API_BASE = isLocalFile ? 'http://localhost:3001/api/insurance'
@@ -517,7 +516,7 @@ function renderTable(rows) {
         <td class="muted">${r.maturityYear || '-'}</td>
         <td style="${r.isMatured === '是' ? 'color:#f87171;font-weight:700' : ''}">${r.isMatured || '-'}</td>
         <td style="text-align:right">${r.maturityAmount || '-'}</td>
-        <td style="text-align:right">${r[returnField] || '-'}</td>
+        <td style="text-align:right">${r.returnNov2025 || '-'}</td>
         <td>${r.company || '-'}</td>
         <td>${r.insured || '-'}</td>
         <td>${r.agent || '-'}</td>
@@ -624,7 +623,7 @@ function rowFormHtml(r, title) {
         </select>
       </div>
       <div class="form-group"><label>滿期金</label><input id="f-maturityAmount" value="${v('maturityAmount')}"></div>
-      <div class="form-group"><label for="f-year-return">${returnYear}領回</label><input id="f-year-return" value="${v(returnField)}"></div>
+      <div class="form-group"><label for="f-year-return">${returnYear}領回</label><input id="f-year-return" value="${v('returnNov2025')}"></div>
       <div class="form-group">
         <label>保險公司</label>
         <select id="f-company">
@@ -673,7 +672,7 @@ window.showAddModal = function() {
       annualPremium: document.getElementById('f-annualPremium').value, accumulatedPremium: document.getElementById('f-accumulatedPremium').value,
       maturityYear: document.getElementById('f-maturityYear').value, isMatured: document.getElementById('f-isMatured').value,
       maturityAmount: document.getElementById('f-maturityAmount').value,
-      [returnField]: document.getElementById('f-year-return').value,
+      returnNov2025: document.getElementById('f-year-return').value,
       company: document.getElementById('f-company').value,
       insured: document.getElementById('f-insured').value,
       agent: getAgentValue(),
@@ -698,7 +697,7 @@ window.showEditModal = function(id) {
       annualPremium: document.getElementById('f-annualPremium').value, accumulatedPremium: document.getElementById('f-accumulatedPremium').value,
       maturityYear: document.getElementById('f-maturityYear').value, isMatured: document.getElementById('f-isMatured').value,
       maturityAmount: document.getElementById('f-maturityAmount').value,
-      [returnField]: document.getElementById('f-year-return').value,
+      returnNov2025: document.getElementById('f-year-return').value,
       company: document.getElementById('f-company').value,
       insured: document.getElementById('f-insured').value,
       agent: getAgentValue(),
